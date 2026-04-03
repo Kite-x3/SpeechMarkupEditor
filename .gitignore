@@ -1,0 +1,29 @@
+﻿### Общие исключения для C# ###
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Tt]emp/
+[Dd]ebug/
+[Rr]elease/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+*.nupkg
+.nuget/
+packages/
+
+### Специфичные для Rider ###
+.idea/
+*.sln.iml
+*.idea/*.iml
+.idea/modules.xml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/vcs.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+.idea/caches/
+.idea/httpRequests/

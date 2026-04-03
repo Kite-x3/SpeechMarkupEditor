@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="AppTitle" xml:space="preserve">
+        <value>Редактор речевой разметки</value>
+    </data>
+    <data name="Error" xml:space="preserve">
+        <value>Ошибка</value>
+    </data>
+    <data name="FileChoosingError" xml:space="preserve">
+        <value>Ошибка выбора аудиофайла</value>
+    </data>
+    <data name="SelectWavFile" xml:space="preserve">
+        <value>Выбрать wav файл</value>
+    </data>
+    <data name="Files" xml:space="preserve">
+        <value>Файлы</value>
+    </data>
+    <data name="NegativeStartTime" xml:space="preserve">
+        <value>Время начала не может быть отрицательным</value>
+    </data>
+    <data name="StartAfterEnd" xml:space="preserve">
+        <value>Время начала должно быть меньше времени окончания</value>
+    </data>
+    <data name="NegativeEndTime" xml:space="preserve">
+        <value>Время окончания не может быть отрицательным</value>
+    </data>
+    <data name="EndBeforeStart" xml:space="preserve">
+        <value>Время окончания должно быть больше времени начала</value>
+    </data>
+    <data name="WordEmpty" xml:space="preserve">
+        <value>Слово не может быть пустым</value>
+    </data>
+    <data name="Word" xml:space="preserve">
+        <value>Слово</value>
+    </data>
+    <data name="StartTime" xml:space="preserve">
+        <value>Тайминг начала</value>
+    </data>
+    <data name="EndTime" xml:space="preserve">
+        <value>Тайминг конца</value>
+    </data>
+    <data name="EarType" xml:space="preserve">
+        <value>В каком ухе слово</value>
+    </data>
+    <data name="LeftEar" xml:space="preserve">
+        <value>Левое ухо</value>
+    </data>
+    <data name="RightEar" xml:space="preserve">
+        <value>Правое ухо</value>
+    </data>
+    <data name="NonDichoticTest" xml:space="preserve">
+        <value>Не дихотомический тест</value>
+    </data>
+    <data name="Cancel" xml:space="preserve">
+        <value>Отмена</value>
+    </data>
+    <data name="WordRequired" xml:space="preserve">
+        <value>Необходимо указать слово</value>
+    </data>
+    <data name="WordMarkerDialogTitle" xml:space="preserve">
+        <value>Добавление слова</value>
+    </data>
+    <data name="WordsInAudioFile" xml:space="preserve">
+        <value>Слова в аудиофайле</value>
+    </data>
+    <data name="AddWord" xml:space="preserve">
+        <value>Добавить слово</value>
+    </data>
+    <data name="WordTiming" xml:space="preserve">
+        <value>Тайминги</value>
+    </data>
+    <data name="SearchSeries" xml:space="preserve">
+        <value>Поиск серий</value>
+    </data>
+    <data name="TimeWatermark" xml:space="preserve">
+        <value>мм:сс.мс</value>
+    </data>
+    <data name="OverlapsWithWords" xml:space="preserve">
+        <value>Обнаружены пересечения со словами</value>
+    </data>
+    <data name="SpeechModelNotFound" xml:space="preserve">
+        <value>Модель распознавания речи не найдена, распознавание невозможно. Проверьте наличие папки в</value>
+    </data>
+    <data name="AudioProcessing" xml:space="preserve">
+        <value>Поиск слов в аудио</value>
+    </data>
+    <data name="RecognitionCanceled" xml:space="preserve">
+        <value>Распознавание отменено</value>
+    </data>
+    <data name="ModelInitError" xml:space="preserve">
+        <value>Ошибка инициализации модели</value>
+    </data>
+    <data name="FileSaveError" xml:space="preserve">
+        <value>Ошибка сохранения файла</value>
+    </data>
+    <data name="ExportDialogTitle" xml:space="preserve">
+        <value>Сохранить разметку</value>
+    </data>
+    <data name="ExportSuccess" xml:space="preserve">
+        <value>Файл успешно создан</value>
+    </data>
+    <data name="File" xml:space="preserve">
+        <value>Файл</value>
+    </data>
+    <data name="ExportError" xml:space="preserve">
+        <value>Ошибка экспорта</value>
+    </data>
+    <data name="NothingToExport" xml:space="preserve">
+        <value>Нет данных для экспорта</value>
+    </data>
+    <data name="Success" xml:space="preserve">
+        <value>Успех</value>
+    </data>
+    <data name="Warning" xml:space="preserve">
+        <value>Предупреждение</value>
+    </data>
+</root>
