@@ -84,8 +84,25 @@ public class WordSeriesService : IWordSeriesService
     /// <param name="word">Слово, которое добавляют</param>
     public void AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word)
     {
-        var tempSeries = new Series { Words = [word] };
+        var tempSeries = new Series();
+        tempSeries.AddWord(word);
         ProcessSeriesWithOverlaps(series, tempSeries);
+    }
+
+    public void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word)
+    {
+        foreach (var item in series.ToList())
+        {
+            if (!item.Words.Contains(word))
+                continue;
+
+            item.Words.Remove(word);
+            if (item.Words.Count == 0)
+                series.Remove(item);
+
+            RenumberSeriesByTimeOrder(series);
+            return;
+        }
     }
 
     /// <summary>
@@ -114,10 +131,11 @@ public class WordSeriesService : IWordSeriesService
 
             _dialogService.ShowWarningAsync(errorMessage);
 
-            var filteredWords = new SortedSet<WordTimestamp>(new WordTimestampComparer());
+            var filteredWords = new List<WordTimestamp>();
             foreach (var nw in newSeries.Words)
             {
-                if (!target.SelectMany(s => s.Words).Any(w => WordsOverlap(w, nw)))
+                if (!target.SelectMany(s => s.Words).Any(w => WordsOverlap(w, nw)) &&
+                    !filteredWords.Contains(nw))
                 {
                     filteredWords.Add(nw);
                 }
@@ -126,7 +144,7 @@ public class WordSeriesService : IWordSeriesService
             newSeries.Words.Clear();
             foreach (var word in filteredWords)
             {
-                newSeries.Words.Add(word);
+                newSeries.AddWord(word);
             }
 
             if (newSeries.Words.Count == 0)
@@ -167,7 +185,7 @@ public class WordSeriesService : IWordSeriesService
             target.Add(new Series
             {
                 SeriesNumber = target.Count + 1,
-                Words = [..newSeries.Words]
+                Words = new ObservableCollection<WordTimestamp>(newSeries.Words)
             });
         }
 
@@ -241,11 +259,16 @@ public class WordSeriesService : IWordSeriesService
                            .OrderBy(s => s.Words.First().StartTime)
                            .ToList();
 
-        series.Clear();
         for (int i = 0; i < ordered.Count; i++)
         {
-            ordered[i].SeriesNumber = i + 1;
-            series.Add(ordered[i]);
+            var currentSeries = ordered[i];
+            currentSeries.SeriesNumber = i + 1;
+
+            var currentIndex = series.IndexOf(currentSeries);
+            if (currentIndex >= 0 && currentIndex != i)
+            {
+                series.Move(currentIndex, i);
+            }
         }
     }
 

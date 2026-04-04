@@ -1,4 +1,4 @@
-﻿// Copyright (C) Neurosoft
+﻿﻿// Copyright (C) Neurosoft
 
 using System;
 using System.Collections.ObjectModel;
@@ -350,6 +350,36 @@ public partial class MainWindowViewModel : ViewModelBase
                 _wordSeriesService.AddWordToSeries(RightSeries, word);
                 break;
         }
+    }
+
+    [RelayCommand]
+    private async Task RemoveLeftWord(WordTimestamp word)
+    {
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            Resources.Warning,
+            $"Удалить слово '{word.Word}' из левого канала?",
+            "Удалить",
+            Resources.Cancel);
+
+        if (!confirmed)
+            return;
+
+        _wordSeriesService.RemoveWordFromSeries(LeftSeries, word);
+    }
+
+    [RelayCommand]
+    private async Task RemoveRightWord(WordTimestamp word)
+    {
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            Resources.Warning,
+            $"Удалить слово '{word.Word}' из правого канала?",
+            "Удалить",
+            Resources.Cancel);
+
+        if (!confirmed)
+            return;
+
+        _wordSeriesService.RemoveWordFromSeries(RightSeries, word);
     }
 
     /// <summary>

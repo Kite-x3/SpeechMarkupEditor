@@ -13,5 +13,6 @@ public interface IWordSeriesService
         List<Series> newSeriesData);
 
     void AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word);
+    void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word);
     List<List<WordTimestamp>> GroupWordsIntoSeries(List<WordTimestamp> words);
 }

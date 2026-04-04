@@ -33,6 +33,19 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="8,4"/>
         </Style>
+        <Style Selector="Button.delete-word">
+            <Setter Property="Background" Value="#C75A5A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#B24E4E"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="Button.delete-word:pointerover">
+            <Setter Property="Background" Value="#B24E4E"/>
+        </Style>
         <Style Selector="Border.PanelStyle">
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="Padding" Value="8"/>
@@ -169,7 +182,7 @@
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <Grid Margin="6,4"
-                                                          ColumnDefinitions="*,Auto"
+                                                          ColumnDefinitions="*,Auto,Auto"
                                                           ColumnSpacing="12">
 
                                                             <!-- Блок слова -->
@@ -205,6 +218,16 @@
                                                                     <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
                                                                 </Grid>
                                                             </Border>
+
+                                                            <Button Grid.Column="2"
+                                                                    Classes="delete-word"
+                                                                    Command="{ReflectionBinding DataContext.RemoveLeftWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding .}"
+                                                                    VerticalAlignment="Center">
+                                                                <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                                         Width="16"
+                                                                         Height="16"/>
+                                                            </Button>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -238,7 +261,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid Margin="6,4"
-                                                          ColumnDefinitions="*,Auto"
+                                                          ColumnDefinitions="*,Auto,Auto"
                                                           ColumnSpacing="12">
 
                                                         <!-- Блок слова -->
@@ -274,6 +297,16 @@
                                                                 <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
                                                             </Grid>
                                                         </Border>
+
+                                                        <Button Grid.Column="2"
+                                                                Classes="delete-word"
+                                                                Command="{ReflectionBinding DataContext.RemoveRightWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding .}"
+                                                                VerticalAlignment="Center">
+                                                            <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                                     Width="16"
+                                                                     Height="16"/>
+                                                        </Button>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>

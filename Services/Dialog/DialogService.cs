@@ -107,6 +107,80 @@ public class DialogService : IDialogService
         await dialog.ShowDialog(MainWindow);
     }
 
+    public async Task<bool> ShowConfirmationAsync(string title, string message, string confirmText, string cancelText,
+        WindowIcon? icon = null)
+    {
+        if (MainWindow is null)
+            return false;
+
+        var result = false;
+
+        var confirmButton = new Button
+        {
+            Content = confirmText,
+            FontSize = 14,
+            MinWidth = 110,
+            MinHeight = 34,
+            Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#C75A5A")),
+            Foreground = Avalonia.Media.Brushes.White,
+            HorizontalContentAlignment = HorizontalAlignment.Center
+        };
+
+        var cancelButton = new Button
+        {
+            Content = cancelText,
+            FontSize = 14,
+            MinWidth = 110,
+            MinHeight = 34,
+            HorizontalContentAlignment = HorizontalAlignment.Center
+        };
+
+        var dialog = new Window
+        {
+            Icon = icon,
+            Title = title,
+            Content = new StackPanel
+            {
+                Margin = new Thickness(24),
+                Spacing = 20,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = message,
+                        FontSize = 16,
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                        MaxWidth = 420
+                    },
+                    new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Spacing = 12,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Children =
+                        {
+                            cancelButton,
+                            confirmButton
+                        }
+                    }
+                }
+            },
+            SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        confirmButton.Click += (_, _) =>
+        {
+            result = true;
+            dialog.Close();
+        };
+
+        cancelButton.Click += (_, _) => dialog.Close();
+
+        await dialog.ShowDialog(MainWindow);
+        return result;
+    }
+
     public async Task ShowWarningAsync(string message)
     {
         await ShowDialogAsync(Resources.Warning, message, _warningIcon.Value);

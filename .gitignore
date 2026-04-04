@@ -27,4 +27,4 @@ packages/
 .idea/shelf
 .idea/caches/
 .idea/httpRequests/
-.verify-build
+.verify-build*

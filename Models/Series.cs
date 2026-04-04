@@ -1,18 +1,29 @@
 // Copyright (C) Neurosoft
 
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.ObjectModel;
 using SpeechMarkupEditor.Infrastructure.Comparers;
 
 namespace SpeechMarkupEditor.Models;
 
 public class Series
 {
+    private static readonly WordTimestampComparer Comparer = new();
+
     public int SeriesNumber { get; set; }
-    public SortedSet<WordTimestamp> Words { get; set; } = new SortedSet<WordTimestamp>(new WordTimestampComparer());
+    public ObservableCollection<WordTimestamp> Words { get; set; } = [];
 
     public void AddWord(WordTimestamp word)
     {
-        Words.Add(word);
+        var insertIndex = 0;
+        while (insertIndex < Words.Count && Comparer.Compare(Words[insertIndex], word) < 0)
+        {
+            insertIndex++;
+        }
+
+        if (insertIndex < Words.Count && Comparer.Compare(Words[insertIndex], word) == 0)
+            return;
+
+        Words.Insert(insertIndex, word);
     }
 }
