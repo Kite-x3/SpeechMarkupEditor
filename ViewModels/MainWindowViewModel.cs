@@ -15,6 +15,7 @@ using SpeechMarkupEditor.Services.Audio;
 using SpeechMarkupEditor.Services.AudioVisualization;
 using SpeechMarkupEditor.Services.Dialog;
 using SpeechMarkupEditor.Services.ExportService;
+using SpeechMarkupEditor.Services.ImportService;
 using SpeechMarkupEditor.Services.NewWordMarkerDialog;
 using SpeechMarkupEditor.Services.SpeechRecognition;
 using SpeechMarkupEditor.Services.WordSeries;
@@ -31,6 +32,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ISpeechRecognitionService _speechRecognitionService;
     private readonly IWordSeriesService _wordSeriesService;
     private readonly IExportService _exportService;
+    private readonly IImportService _importService;
     private IAudioService? _audioService;
     private string _fullFilePath = string.Empty;
     private bool _disposed;
@@ -47,6 +49,9 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     private bool _isFileSelected;
+
+    [ObservableProperty]
+    private bool _hasAudioLoaded;
 
     /// <summary>
     /// Громкость воспроизведения
@@ -115,7 +120,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(IDialogService dialogService, IAudioSourceProviderFactory sourceProviderFactory,
         IServiceProvider serviceProvider, IAudioVisualizationService visualizationService, IWordMarkerDialogService wordMarkerDialogService,
-        ISpeechRecognitionService speechRecognitionService, IWordSeriesService wordSeriesService, IExportService exportService)
+        ISpeechRecognitionService speechRecognitionService, IWordSeriesService wordSeriesService, IExportService exportService,
+        IImportService importService)
     {
         _dialogService = dialogService;
         _sourceProviderFactory = sourceProviderFactory;
@@ -127,6 +133,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _leftSeries = new ObservableCollection<Series>();
         _rightSeries = new ObservableCollection<Series>();
         _exportService = exportService;
+        _importService = importService;
     }
 
     /// <summary>
@@ -205,6 +212,7 @@ public partial class MainWindowViewModel : ViewModelBase
             InitializeAudioService(source);
             SelectedFileName = source.DisplayName;
             IsFileSelected = true;
+            HasAudioLoaded = true;
             await _visualizationService.UpdateVisualizationAsync(source);
             IsProcessingAudio = true;
             try
@@ -249,7 +257,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _audioService.Initialize(sourceProvider);
         _audioService.SetVolume(Volume);
         CurrentTimeSeconds = 0;
+        TotalTimeSeconds = 0;
         IsPlaying = false;
+        HasAudioLoaded = true;
         IsStereoAudio = _audioService.IsStereoAudio;
         IsLeftChannelActive =  _audioService.IsLeftChannelActive;
         IsRightChannelActive = _audioService.IsRightChannelActive;
@@ -269,7 +279,42 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _audioService.Dispose();
         _audioService = null;
+        HasAudioLoaded = false;
 
+    }
+
+    [RelayCommand]
+    private async Task ImportMarkup()
+    {
+        var importedMarkup = await _importService.ImportAsync();
+        if (importedMarkup == null)
+            return;
+
+        _recognitionCts?.Cancel();
+        CleanupAudioService();
+
+        LeftSeries.Clear();
+        RightSeries.Clear();
+
+        foreach (var series in importedMarkup.LeftChannel)
+        {
+            LeftSeries.Add(series);
+        }
+
+        foreach (var series in importedMarkup.RightChannel)
+        {
+            RightSeries.Add(series);
+        }
+
+        SelectedFileName = importedMarkup.FileName;
+        IsFileSelected = true;
+        HasAudioLoaded = false;
+        CurrentTimeSeconds = 0;
+        TotalTimeSeconds = 0;
+        IsPlaying = false;
+        IsStereoAudio = false;
+        IsLeftChannelActive = true;
+        IsRightChannelActive = true;
     }
 
     [RelayCommand]

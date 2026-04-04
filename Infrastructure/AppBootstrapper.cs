@@ -10,6 +10,7 @@ using SpeechMarkupEditor.Services.Audio;
 using SpeechMarkupEditor.Services.AudioVisualization;
 using SpeechMarkupEditor.Services.Dialog;
 using SpeechMarkupEditor.Services.ExportService;
+using SpeechMarkupEditor.Services.ImportService;
 using SpeechMarkupEditor.Services.NewWordMarkerDialog;
 using SpeechMarkupEditor.Services.SpeechRecognition;
 using SpeechMarkupEditor.Services.StorageProvider;
@@ -43,6 +44,7 @@ public class AppBootstrapper
         services.AddScoped<ISpeechRecognitionService, SpeechRecognitionService>();
         services.AddScoped<IWordSeriesService, WordSeriesService>();
         services.AddScoped<IExportService, ExportToJsonService>();
+        services.AddScoped<IImportService, ImportFromJsonService>();
 
         services.AddTransient<IWordMarkerDialogService, WordMarkerDialogService>();
         services.AddTransient<WordMarkerDialogViewModel>();

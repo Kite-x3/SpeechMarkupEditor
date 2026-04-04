@@ -196,6 +196,29 @@ public class DialogService : IDialogService
         await ShowDialogAsync(Resources.Success, message, _successIcon.Value);
     }
 
+    public async Task<string?> ShowOpenFileDialogAsync(string title, string filters)
+    {
+        if (MainWindow is null)
+            return null;
+
+        try
+        {
+            var result = await MainWindow.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = title,
+                AllowMultiple = false,
+                FileTypeFilter = ParseFileFilters(filters)
+            });
+
+            return result.Count > 0 ? result[0].TryGetLocalPath() : null;
+        }
+        catch (Exception ex)
+        {
+            await ShowDialogAsync(Resources.Error, $"{Resources.FileChoosingError}: {ex.Message}", _errorIcon.Value);
+            return null;
+        }
+    }
+
     public async Task<string?> ShowSaveFileDialogAsync(string title, string filters)
     {
         if (MainWindow is null) return null;

@@ -12,5 +12,6 @@ public interface IDialogService
     Task ShowWarningAsync(string message);
     Task ShowErrorAsync(string message);
     Task ShowSuccessAsync(string message);
+    Task<string?> ShowOpenFileDialogAsync(string title, string filters);
     Task<string?> ShowSaveFileDialogAsync(string title, string filters);
 }
