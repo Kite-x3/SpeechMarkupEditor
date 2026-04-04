@@ -1,0 +1,30 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SpeechMarkupEditor.Controls.TimeEditorControl">
+    <DataValidationErrors>
+        <Grid ColumnDefinitions="*, Auto">
+            <TextBox x:Name="EditorTextBox"
+                     Grid.Column="0"
+                     TextInput="OnTextInput"
+                     TextChanging="OnTextChanging"
+                     GotFocus="OnTextBoxGotFocus"
+                     LostFocus="OnTextBoxLostFocus"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Center"/>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="2"
+                        Margin="8,0,0,0">
+                <Button Content="+"
+                        Width="28"
+                        Height="28"
+                        Click="OnIncrement"/>
+                <Button Content="-"
+                        Width="28"
+                        Height="28"
+                        Click="OnDecrement"/>
+            </StackPanel>
+        </Grid>
+    </DataValidationErrors>
+</UserControl>

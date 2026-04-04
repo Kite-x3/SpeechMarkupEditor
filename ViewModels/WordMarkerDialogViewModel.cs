@@ -15,15 +15,6 @@ namespace SpeechMarkupEditor.ViewModels;
 
 public partial class WordMarkerDialogViewModel : ViewModelBase
 {
-    /// <summary>
-    /// Шаг изменения времени при увеличении/уменьшении
-    /// </summary>
-    private const double TIME_INCREMENT = 0.05;
-
-    /// <summary>
-    /// Формат строкового представления времени
-    /// </summary>
-    private const string TIME_FORMAT = @"mm\:ss\.ff";
     private readonly IDialogService _dialogService;
 
     /// <summary>
@@ -36,14 +27,12 @@ public partial class WordMarkerDialogViewModel : ViewModelBase
     /// Время начала слова
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StartTimeString))]
     private double _startTime;
 
     /// <summary>
     /// Время окончания слова
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(EndTimeString))]
     private double _endTime;
 
     /// <summary>
@@ -73,64 +62,6 @@ public partial class WordMarkerDialogViewModel : ViewModelBase
         new EarTypeItem { DisplayName = Resources.LeftEar, Value = EarType.Left },
         new EarTypeItem { DisplayName = Resources.RightEar, Value = EarType.Right },
     ];
-
-    /// <summary>
-    /// Начальный тайминг слова
-    /// </summary>
-    public string StartTimeString
-    {
-        get => TimeSpan.FromSeconds(StartTime).ToString(TIME_FORMAT);
-        set
-        {
-            if (TimeSpan.TryParseExact(value, TIME_FORMAT, null, out var timeSpan))
-            {
-                StartTime = timeSpan.TotalSeconds;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Конечный тайминг слова
-    /// </summary>
-    public string EndTimeString
-    {
-        get => TimeSpan.FromSeconds(EndTime).ToString(TIME_FORMAT);
-        set
-        {
-            if (TimeSpan.TryParseExact(value, TIME_FORMAT, null, out var timeSpan))
-            {
-                EndTime = timeSpan.TotalSeconds;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Увеличение времени начала слова
-    /// </summary>
-    [RelayCommand]
-    private void IncrementStartTime()
-        => StartTime += TIME_INCREMENT;
-
-    /// <summary>
-    /// Уменьшение времени начала слова
-    /// </summary>
-    [RelayCommand]
-    private void DecrementStartTime()
-        => StartTime = Math.Max(0, StartTime - TIME_INCREMENT);
-
-    /// <summary>
-    /// Увеличение времени окончания слова
-    /// </summary>
-    [RelayCommand]
-    private void IncrementEndTime()
-        => EndTime += TIME_INCREMENT;
-
-    /// <summary>
-    /// Уменьшение времени окончания слова
-    /// </summary>
-    [RelayCommand]
-    private void DecrementEndTime()
-        => EndTime = Math.Max(0, EndTime - TIME_INCREMENT);
 
     /// <summary>
     /// Команда подтверждения добавления нового маркера слова

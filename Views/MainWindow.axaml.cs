@@ -16,6 +16,12 @@ namespace SpeechMarkupEditor.Views;
 public partial class MainWindow : Window
 {
     private readonly IServiceProvider _serviceProvider;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
+
     public MainWindow(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;

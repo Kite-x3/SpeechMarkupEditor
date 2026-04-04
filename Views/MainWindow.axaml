@@ -168,23 +168,44 @@
                                             <ItemsControl ItemsSource="{Binding Words}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal" Margin="6,2" Spacing="8">
-                                                            <TextBlock Text="{x:Static res:Resources.Word}"
-                                                                      VerticalAlignment="Center"/>
-                                                            <TextBox Text="{Binding Word}"
-                                                                    FontWeight="Bold"/>
-                                                            <TextBlock Text="{x:Static res:Resources.WordTiming}"
-                                                                      VerticalAlignment="Center"/>
-                                                            <NumericUpDown Value="{Binding StartTime}"
-                                                                          Minimum="0"
-                                                                          Increment="0.05"
-                                                                          FormatString="0.00"/>
-                                                            <TextBlock Text="-" VerticalAlignment="Center"/>
-                                                            <NumericUpDown Value="{Binding EndTime}"
-                                                                          Minimum="0"
-                                                                          Increment="0.05"
-                                                                          FormatString="0.00"/>
-                                                        </StackPanel>
+                                                        <Grid Margin="6,4"
+                                                          ColumnDefinitions="*,Auto"
+                                                          ColumnSpacing="12">
+
+                                                            <!-- Блок слова -->
+                                                            <Grid Grid.Column="0" ColumnDefinitions="Auto,*"
+                                                                  ColumnSpacing="6">
+                                                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.Word}"
+                                                                           VerticalAlignment="Center"/>
+
+                                                                <TextBox Grid.Column="1" Text="{Binding Word}"
+                                                                         VerticalAlignment="Center"
+                                                                         FontWeight="Bold"/>
+                                                            </Grid>
+
+                                                            <!-- Блок таймингов -->
+                                                            <Border Grid.Column="1"
+                                                                    BorderBrush="#CCC"
+                                                                    BorderThickness="1"
+                                                                    Padding="6,4"
+                                                                    CornerRadius="4">
+
+                                                                <Grid ColumnDefinitions="Auto,160,Auto,160"
+                                                                      ColumnSpacing="6"
+                                                                      VerticalAlignment="Center">
+
+                                                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.WordTiming}"
+                                                                               VerticalAlignment="Center"/>
+
+                                                                    <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
+
+                                                                    <TextBlock Grid.Column="2" Text="–"
+                                                                               VerticalAlignment="Center"/>
+
+                                                                    <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -216,23 +237,44 @@
                                         <ItemsControl ItemsSource="{Binding Words}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" Margin="6,2" Spacing="8">
-                                                        <TextBlock Text="{x:Static res:Resources.Word}"
-                                                                  VerticalAlignment="Center"/>
-                                                        <TextBox Text="{Binding Word}"
-                                                                FontWeight="Bold"/>
-                                                        <TextBlock Text="{x:Static res:Resources.WordTiming}"
-                                                                  VerticalAlignment="Center"/>
-                                                        <NumericUpDown Value="{Binding StartTime}"
-                                                                      Minimum="0"
-                                                                      Increment="0.05"
-                                                                      FormatString="0.00"/>
-                                                        <TextBlock Text="-" VerticalAlignment="Center"/>
-                                                        <NumericUpDown Value="{Binding EndTime}"
-                                                                      Minimum="0"
-                                                                      Increment="0.05"
-                                                                      FormatString="0.00"/>
-                                                    </StackPanel>
+                                                    <Grid Margin="6,4"
+                                                          ColumnDefinitions="*,Auto"
+                                                          ColumnSpacing="12">
+
+                                                        <!-- Блок слова -->
+                                                        <Grid Grid.Column="0" ColumnDefinitions="Auto,*"
+                                                              ColumnSpacing="6">
+                                                            <TextBlock Grid.Column="0" Text="{x:Static res:Resources.Word}"
+                                                                       VerticalAlignment="Center"/>
+
+                                                            <TextBox Grid.Column="1" Text="{Binding Word}"
+                                                                     VerticalAlignment="Center"
+                                                                     FontWeight="Bold"/>
+                                                        </Grid>
+
+                                                        <!-- Блок таймингов -->
+                                                        <Border Grid.Column="1"
+                                                                BorderBrush="#CCC"
+                                                                BorderThickness="1"
+                                                                Padding="6,4"
+                                                                CornerRadius="4">
+
+                                                            <Grid ColumnDefinitions="Auto,160,Auto,160"
+                                                                  ColumnSpacing="6"
+                                                                  VerticalAlignment="Center">
+
+                                                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.WordTiming}"
+                                                                           VerticalAlignment="Center"/>
+
+                                                                <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
+
+                                                                <TextBlock Grid.Column="2" Text="–"
+                                                                           VerticalAlignment="Center"/>
+
+                                                                <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
