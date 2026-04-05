@@ -1,4 +1,4 @@
-﻿// Copyright (C) Neurosoft
+﻿﻿// Copyright (C) Neurosoft
 
 using System;
 using Avalonia.Platform.Storage;
@@ -12,6 +12,7 @@ using SpeechMarkupEditor.Services.Dialog;
 using SpeechMarkupEditor.Services.ExportService;
 using SpeechMarkupEditor.Services.ImportService;
 using SpeechMarkupEditor.Services.NewWordMarkerDialog;
+using SpeechMarkupEditor.Services.RecognitionModels;
 using SpeechMarkupEditor.Services.SpeechRecognition;
 using SpeechMarkupEditor.Services.StorageProvider;
 using SpeechMarkupEditor.Services.WordSeries;
@@ -52,9 +53,12 @@ public class AppBootstrapper
         services.AddSingleton<IAudioSourceProviderFactory, FileAudioSourceProviderFactory>();
         services.AddSingleton<IStorageProviderAccessor, StorageProviderAccessor>();
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IRecognitionModelService, RecognitionModelService>();
 
         services.AddSingleton<MainWindowViewModel>();
+        services.AddTransient<ModelSettingsViewModel>();
         services.AddSingleton<MainWindow>();
+        services.AddTransient<ModelSettingsWindow>();
 
         services.AddScoped<IStorageProvider>(provider =>
             provider.GetRequiredService<IStorageProviderAccessor>().GetStorageProvider());

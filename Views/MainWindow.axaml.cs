@@ -1,4 +1,4 @@
-// Copyright (C) Neurosoft
+﻿﻿// Copyright (C) Neurosoft
 
 using System;
 using System.Threading.Tasks;
@@ -64,4 +64,12 @@ public partial class MainWindow : Window
             visualizationService.WaveformUpdated += vm.OnWaveformUpdated;
         }
     }
+
+    private async void ModelSettingsMenuItem_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var window = _serviceProvider.GetRequiredService<ModelSettingsWindow>();
+        window.DataContext = _serviceProvider.GetRequiredService<ModelSettingsViewModel>();
+        await window.ShowDialog(this);
+    }
 }
+

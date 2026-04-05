@@ -1,4 +1,4 @@
-// Copyright (C) Neurosoft
+﻿// Copyright (C) Neurosoft
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SpeechMarkupEditor.Assets;
 using SpeechMarkupEditor.Models;
 using SpeechMarkupEditor.Services.Dialog;
 
@@ -23,7 +24,7 @@ public class ImportFromJsonService : IImportService
 
     public async Task<ImportedMarkup?> ImportAsync()
     {
-        var filePath = await _dialogService.ShowOpenFileDialogAsync("Импорт разметки", "JSON Files (*.json)|*.json");
+        var filePath = await _dialogService.ShowOpenFileDialogAsync(Resources.ImportMarkupDialogTitle, Resources.JsonFilesFilter);
         if (string.IsNullOrWhiteSpace(filePath))
             return null;
 
@@ -36,7 +37,7 @@ public class ImportFromJsonService : IImportService
             });
 
             if (imported == null)
-                throw new InvalidOperationException("Файл разметки пустой или имеет неверный формат.");
+                throw new InvalidOperationException(Resources.InvalidMarkupFileFormat);
 
             return new ImportedMarkup
             {
@@ -49,7 +50,7 @@ public class ImportFromJsonService : IImportService
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowErrorAsync($"Не удалось импортировать разметку: {ex.Message}");
+            await _dialogService.ShowErrorAsync(string.Format(Resources.ImportMarkupFailedFormat, ex.Message));
             return null;
         }
     }
@@ -107,3 +108,4 @@ public class ImportFromJsonService : IImportService
         public double EndTime { get; set; }
     }
 }
+

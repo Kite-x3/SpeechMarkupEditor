@@ -1,4 +1,4 @@
-<!-- Copyright (C) Neurosoft -->
+﻿<!-- Copyright (C) Neurosoft -->
 
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -27,11 +27,57 @@
 
     <Window.Styles>
         <Style Selector="Button.toolbar">
-            <Setter Property="Height" Value="48"/>
-            <Setter Property="Width" Value="36"></Setter>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Width" Value="44"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="Button.channel-toggle">
+            <Setter Property="Padding" Value="4,2"/>
+        </Style>
+        <Style Selector="DropDownButton.toolbar">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="DropDownButton.settings">
+            <Setter Property="Width" Value="56"/>
+        </Style>
+        <Style Selector="Button.toolbar-text">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="DropDownButton.toolbar-text">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="svg|Svg.channel-icon">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+        <Style Selector="Button.action">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
         <Style Selector="Button.delete-word">
             <Setter Property="Background" Value="#C75A5A"/>
@@ -54,18 +100,31 @@
 
     <Grid RowDefinitions="Auto, Auto, *" Margin="15, 10" RowSpacing="8">
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
-            <DropDownButton Content="{x:Static res:Resources.File}"
-                            Width="120">
+            <DropDownButton Classes="toolbar settings">
+                <DropDownButton.Content>
+                    <svg:Svg Path="avares://SpeechMarkupEditor/Assets/settings.svg"
+                             Width="20" Height="20"/>
+                </DropDownButton.Content>
+                <DropDownButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuItem Header="{x:Static res:Resources.SelectRecognitionModel}" Click="ModelSettingsMenuItem_OnClick"/>
+                    </MenuFlyout>
+                </DropDownButton.Flyout>
+            </DropDownButton>
+            <DropDownButton Classes="toolbar-text" Width="104">
+                <DropDownButton.Content>
+                    <TextBlock Text="{x:Static res:Resources.File}" FlowDirection="LeftToRight"/>
+                </DropDownButton.Content>
                 <DropDownButton.Flyout>
                     <MenuFlyout Placement="BottomEdgeAlignedLeft">
                         <MenuItem Header="{x:Static res:Resources.SelectWavFile}"
                                   Command="{Binding SelectWavFileCommand}">
                         </MenuItem>
-                        <MenuItem Header="Импорт разметки"
+                        <MenuItem Header="{x:Static res:Resources.ImportMarkup}"
                                   Command="{Binding ImportMarkupCommand}">
                         </MenuItem>
 
-                        <MenuItem Header="Экспорт"
+                        <MenuItem Header="{x:Static res:Resources.Export}"
                                   Command="{Binding ExportCommand}"
                                   IsEnabled="{Binding IsFileSelected}">
                         </MenuItem>
@@ -93,27 +152,33 @@
                 <Slider Width="100" Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
                         IsEnabled="{Binding HasAudioLoaded}"></Slider>
             </StackPanel>
-            <Button Classes="toolbar" Command="{Binding ToggleLeftChannelCommand}" IsEnabled="{Binding IsStereoAudio}">
-                <StackPanel>
-                    <TextBlock Text="L" HorizontalAlignment="Center"/>
+            <Button Classes="toolbar channel-toggle"
+                    Command="{Binding ToggleLeftChannelCommand}"
+                    IsEnabled="{Binding IsStereoAudio}">
+                <Grid RowDefinitions="Auto,*" Height="36">
+                    <TextBlock Grid.Row="0" Text="{x:Static res:Resources.LeftChannelShort}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     <svg:Svg Path="avares://SpeechMarkupEditor/Assets/sound-on.svg"
-                             Width="20" Height="20"
+                             Grid.Row="1"
+                             Classes="channel-icon"
                              IsVisible="{Binding IsLeftChannelActive}"/>
                     <svg:Svg Path="avares://SpeechMarkupEditor/Assets/sound-off.svg"
-                             Width="20" Height="20"
+                             Grid.Row="1"
+                             Classes="channel-icon"
                              IsVisible="{Binding !IsLeftChannelActive}"/>
-                </StackPanel>
+                </Grid>
             </Button>
-            <Button Classes="toolbar" Command="{Binding ToggleRightChannelCommand}" IsEnabled="{Binding IsStereoAudio}">
-                <StackPanel>
-                    <TextBlock Text="R" HorizontalAlignment="Center"/>
+            <Button Classes="toolbar channel-toggle" Command="{Binding ToggleRightChannelCommand}" IsEnabled="{Binding IsStereoAudio}">
+                <Grid RowDefinitions="Auto,*" Height="36">
+                    <TextBlock Grid.Row="0" Text="{x:Static res:Resources.RightChannelShort}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     <svg:Svg Path="avares://SpeechMarkupEditor/Assets/sound-on.svg"
-                             Width="20" Height="20"
+                             Grid.Row="1"
+                             Classes="channel-icon"
                              IsVisible="{Binding IsRightChannelActive}"/>
                     <svg:Svg Path="avares://SpeechMarkupEditor/Assets/sound-off.svg"
-                             Width="20" Height="20"
+                             Grid.Row="1"
+                             Classes="channel-icon"
                              IsVisible="{Binding !IsRightChannelActive}"/>
-                </StackPanel>
+                </Grid>
             </Button>
             <TextBlock Text="{Binding SelectedFileName}" VerticalAlignment="Center"/>
         </StackPanel>
@@ -150,7 +215,7 @@
                     <ProgressBar Width="300" Height="8" IsIndeterminate="True"
                                  IsVisible="{Binding IsProcessingAudio}"
                                  VerticalAlignment="Center"/>
-                    <Button Content="{x:Static res:Resources.Cancel}"
+                    <Button Classes="action" Content="{x:Static res:Resources.Cancel}"
                             Command="{Binding CancelRecognitionCommand}"
                             IsVisible="{Binding IsProcessingAudio}"
                             HorizontalAlignment="Center"/>
@@ -158,29 +223,29 @@
                                IsVisible="{Binding !IsProcessingAudio}" FontSize="16"></TextBlock>
                 </StackPanel>
             </Border>
-            <!-- Заголовки L / R -->
-            <TextBlock Grid.Row="1" Text="L" Grid.Column="0" HorizontalAlignment="Center"
+            <!-- Р—Р°РіРѕР»РѕРІРєРё L / R -->
+            <TextBlock Grid.Row="1" Text="{x:Static res:Resources.LeftChannelShort}" Grid.Column="0" HorizontalAlignment="Center"
                        FontSize="16" FontWeight="Bold" Foreground="{StaticResource LeftLetter}"/>
-            <TextBlock Grid.Row="1" Text="R" Grid.Column="1" HorizontalAlignment="Center"
+            <TextBlock Grid.Row="1" Text="{x:Static res:Resources.RightChannelShort}" Grid.Column="1" HorizontalAlignment="Center"
                        FontSize="16" FontWeight="Bold" Foreground="{StaticResource RightLetter}"/>
 
-            <!-- Левая панель -->
+            <!-- Р›РµРІР°СЏ РїР°РЅРµР»СЊ -->
             <Border Grid.Row="2" Grid.Column="0" Classes="PanelStyle" BorderBrush="{StaticResource LeftLetter}"
                     BorderThickness="1.5">
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
                         <ItemsControl ItemsSource="{Binding LeftSeries}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10" Margin="0,0,0,10" BorderBrush="Gray" BorderThickness="0,0,0,2">
                                         <StackPanel>
-                                            <!-- Заголовок серии -->
-                                            <TextBlock Text="{Binding SeriesNumber, StringFormat='Серия {0}'}"
+                                            <!-- Р—Р°РіРѕР»РѕРІРѕРє СЃРµСЂРёРё -->
+                                            <TextBlock Text="{Binding SeriesNumber, StringFormat={x:Static res:Resources.SeriesTitleFormat}}"
                                                       FontWeight="Bold"
                                                       Foreground="{StaticResource LeftLetter}"
                                                       Margin="0,0,0,5"/>
 
-                                            <!-- Слова в сериях -->
+                                            <!-- РЎР»РѕРІР° РІ СЃРµСЂРёСЏС… -->
                                             <ItemsControl ItemsSource="{Binding Words}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
@@ -188,7 +253,7 @@
                                                           ColumnDefinitions="*,Auto,Auto"
                                                           ColumnSpacing="12">
 
-                                                            <!-- Блок слова -->
+                                                            <!-- Р‘Р»РѕРє СЃР»РѕРІР° -->
                                                             <Grid Grid.Column="0" ColumnDefinitions="Auto,*"
                                                                   ColumnSpacing="6">
                                                                 <TextBlock Grid.Column="0" Text="{x:Static res:Resources.Word}"
@@ -199,7 +264,7 @@
                                                                          FontWeight="Bold"/>
                                                             </Grid>
 
-                                                            <!-- Блок таймингов -->
+                                                            <!-- Р‘Р»РѕРє С‚Р°Р№РјРёРЅРіРѕРІ -->
                                                             <Border Grid.Column="1"
                                                                     BorderBrush="#CCC"
                                                                     BorderThickness="1"
@@ -215,7 +280,7 @@
 
                                                                     <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
 
-                                                                    <TextBlock Grid.Column="2" Text="–"
+                                                                    <TextBlock Grid.Column="2" Text="{x:Static res:Resources.RangeSeparator}"
                                                                                VerticalAlignment="Center"/>
 
                                                                     <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
@@ -243,23 +308,23 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
-            <!-- Правая панель -->
+            <!-- РџСЂР°РІР°СЏ РїР°РЅРµР»СЊ -->
             <Border Grid.Row="2" Grid.Column="1" Classes="PanelStyle" BorderBrush="{StaticResource RightLetter}"
                     BorderThickness="1.5">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding RightSeries}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Padding="10" Margin="0,0,0,10" BorderBrush="Gray" BorderThickness="0,0,0,2">
                                     <StackPanel>
-                                        <!-- Заголовок серии -->
-                                        <TextBlock Text="{Binding SeriesNumber, StringFormat='Серия {0}'}"
+                                        <!-- Р—Р°РіРѕР»РѕРІРѕРє СЃРµСЂРёРё -->
+                                        <TextBlock Text="{Binding SeriesNumber, StringFormat={x:Static res:Resources.SeriesTitleFormat}}"
                                                   FontWeight="Bold"
                                                   Foreground="{StaticResource RightLetter}"
                                                   Margin="0,0,0,5"/>
 
-                                        <!-- Слова в серии -->
+                                        <!-- РЎР»РѕРІР° РІ СЃРµСЂРёРё -->
                                         <ItemsControl ItemsSource="{Binding Words}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
@@ -267,7 +332,7 @@
                                                           ColumnDefinitions="*,Auto,Auto"
                                                           ColumnSpacing="12">
 
-                                                        <!-- Блок слова -->
+                                                        <!-- Р‘Р»РѕРє СЃР»РѕРІР° -->
                                                         <Grid Grid.Column="0" ColumnDefinitions="Auto,*"
                                                               ColumnSpacing="6">
                                                             <TextBlock Grid.Column="0" Text="{x:Static res:Resources.Word}"
@@ -278,7 +343,7 @@
                                                                      FontWeight="Bold"/>
                                                         </Grid>
 
-                                                        <!-- Блок таймингов -->
+                                                        <!-- Р‘Р»РѕРє С‚Р°Р№РјРёРЅРіРѕРІ -->
                                                         <Border Grid.Column="1"
                                                                 BorderBrush="#CCC"
                                                                 BorderThickness="1"
@@ -294,7 +359,7 @@
 
                                                                 <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
 
-                                                                <TextBlock Grid.Column="2" Text="–"
+                                                                <TextBlock Grid.Column="2" Text="{x:Static res:Resources.RangeSeparator}"
                                                                            VerticalAlignment="Center"/>
 
                                                                 <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
@@ -326,3 +391,4 @@
     </Grid>
 
 </Window>
+

@@ -198,6 +198,10 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
+            var source = await _sourceProviderFactory.CreateSourceAsync();
+            if (source == null)
+                return;
+
             _recognitionCts?.Cancel();
             _recognitionCts?.Dispose();
             _recognitionCts = new CancellationTokenSource();
@@ -205,11 +209,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
             LeftSeries.Clear();
             RightSeries.Clear();
-            var source = await _sourceProviderFactory.CreateSourceAsync();
-            if (source == null)
-                return;
 
-            InitializeAudioService(source);
+            await InitializeAudioService(source);
             SelectedFileName = source.DisplayName;
             IsFileSelected = true;
             HasAudioLoaded = true;
@@ -246,7 +247,7 @@ public partial class MainWindowViewModel : ViewModelBase
     /// Инициализирует аудио сервис с указанным источником
     /// </summary>
     /// <param name="sourceProvider">Источник аудиоданных</param>
-    private void InitializeAudioService(IAudioSourceProvider sourceProvider)
+    private async Task InitializeAudioService(IAudioSourceProvider sourceProvider)
     {
         CleanupAudioService();
 
@@ -254,10 +255,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _audioService.PlaybackPositionUpdated += OnPlaybackPositionUpdated;
         _audioService.TotalTimeChanged += OnTotalTimeChanged;
         _audioService.PlaybackStateChanged += OnPlaybackStateChanged;
-        _audioService.Initialize(sourceProvider);
+        await _audioService.Initialize(sourceProvider);
         _audioService.SetVolume(Volume);
         CurrentTimeSeconds = 0;
-        TotalTimeSeconds = 0;
         IsPlaying = false;
         HasAudioLoaded = true;
         IsStereoAudio = _audioService.IsStereoAudio;
@@ -402,8 +402,8 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var confirmed = await _dialogService.ShowConfirmationAsync(
             Resources.Warning,
-            $"Удалить слово '{word.Word}' из левого канала?",
-            "Удалить",
+            string.Format(Resources.DeleteWordLeftChannelFormat, word.Word),
+            Resources.Delete,
             Resources.Cancel);
 
         if (!confirmed)
@@ -417,8 +417,8 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var confirmed = await _dialogService.ShowConfirmationAsync(
             Resources.Warning,
-            $"Удалить слово '{word.Word}' из правого канала?",
-            "Удалить",
+            string.Format(Resources.DeleteWordRightChannelFormat, word.Word),
+            Resources.Delete,
             Resources.Cancel);
 
         if (!confirmed)

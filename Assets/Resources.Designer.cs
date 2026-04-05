@@ -288,5 +288,197 @@ namespace SpeechMarkupEditor.Assets {
                 return ResourceManager.GetString("Warning", resourceCulture);
             }
         }
+
+        public static string Ok {
+            get {
+                return ResourceManager.GetString("Ok", resourceCulture);
+            }
+        }
+
+        public static string ImportMarkup {
+            get {
+                return ResourceManager.GetString("ImportMarkup", resourceCulture);
+            }
+        }
+
+        public static string Export {
+            get {
+                return ResourceManager.GetString("Export", resourceCulture);
+            }
+        }
+
+        public static string SelectRecognitionModel {
+            get {
+                return ResourceManager.GetString("SelectRecognitionModel", resourceCulture);
+            }
+        }
+
+        public static string SeriesTitleFormat {
+            get {
+                return ResourceManager.GetString("SeriesTitleFormat", resourceCulture);
+            }
+        }
+
+        public static string ModelSettingsTitle {
+            get {
+                return ResourceManager.GetString("ModelSettingsTitle", resourceCulture);
+            }
+        }
+
+        public static string RecognitionModels {
+            get {
+                return ResourceManager.GetString("RecognitionModels", resourceCulture);
+            }
+        }
+
+        public static string AvailableModels {
+            get {
+                return ResourceManager.GetString("AvailableModels", resourceCulture);
+            }
+        }
+
+        public static string CurrentModel {
+            get {
+                return ResourceManager.GetString("CurrentModel", resourceCulture);
+            }
+        }
+
+        public static string SetCurrentModel {
+            get {
+                return ResourceManager.GetString("SetCurrentModel", resourceCulture);
+            }
+        }
+
+        public static string AddModel {
+            get {
+                return ResourceManager.GetString("AddModel", resourceCulture);
+            }
+        }
+
+        public static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
+            }
+        }
+
+        public static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+
+        public static string ModelPath {
+            get {
+                return ResourceManager.GetString("ModelPath", resourceCulture);
+            }
+        }
+
+        public static string SelectFolder {
+            get {
+                return ResourceManager.GetString("SelectFolder", resourceCulture);
+            }
+        }
+
+        public static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+
+        public static string VoskModelName {
+            get {
+                return ResourceManager.GetString("VoskModelName", resourceCulture);
+            }
+        }
+
+        public static string VoskEngineName {
+            get {
+                return ResourceManager.GetString("VoskEngineName", resourceCulture);
+            }
+        }
+
+        public static string SelectVoskModelFolder {
+            get {
+                return ResourceManager.GetString("SelectVoskModelFolder", resourceCulture);
+            }
+        }
+
+        public static string SpecifyModelNameAndPath {
+            get {
+                return ResourceManager.GetString("SpecifyModelNameAndPath", resourceCulture);
+            }
+        }
+
+        public static string ModelPathDoesNotExist {
+            get {
+                return ResourceManager.GetString("ModelPathDoesNotExist", resourceCulture);
+            }
+        }
+
+        public static string DeleteWordLeftChannelFormat {
+            get {
+                return ResourceManager.GetString("DeleteWordLeftChannelFormat", resourceCulture);
+            }
+        }
+
+        public static string DeleteWordRightChannelFormat {
+            get {
+                return ResourceManager.GetString("DeleteWordRightChannelFormat", resourceCulture);
+            }
+        }
+
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+
+        public static string ImportMarkupDialogTitle {
+            get {
+                return ResourceManager.GetString("ImportMarkupDialogTitle", resourceCulture);
+            }
+        }
+
+        public static string JsonFilesFilter {
+            get {
+                return ResourceManager.GetString("JsonFilesFilter", resourceCulture);
+            }
+        }
+
+        public static string InvalidMarkupFileFormat {
+            get {
+                return ResourceManager.GetString("InvalidMarkupFileFormat", resourceCulture);
+            }
+        }
+
+        public static string ImportMarkupFailedFormat {
+            get {
+                return ResourceManager.GetString("ImportMarkupFailedFormat", resourceCulture);
+            }
+        }
+
+        public static string LeftChannelShort {
+            get {
+                return ResourceManager.GetString("LeftChannelShort", resourceCulture);
+            }
+        }
+
+        public static string RightChannelShort {
+            get {
+                return ResourceManager.GetString("RightChannelShort", resourceCulture);
+            }
+        }
+
+        public static string RangeSeparator {
+            get {
+                return ResourceManager.GetString("RangeSeparator", resourceCulture);
+            }
+        }
+
+        public static string RussianLanguageCode {
+            get {
+                return ResourceManager.GetString("RussianLanguageCode", resourceCulture);
+            }
+        }
     }
 }

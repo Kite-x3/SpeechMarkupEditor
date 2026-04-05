@@ -19,10 +19,14 @@
                 <Button Content="+"
                         Width="28"
                         Height="28"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
                         Click="OnIncrement"/>
                 <Button Content="-"
                         Width="28"
                         Height="28"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
                         Click="OnDecrement"/>
             </StackPanel>
         </Grid>

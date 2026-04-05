@@ -13,5 +13,6 @@ public interface IDialogService
     Task ShowErrorAsync(string message);
     Task ShowSuccessAsync(string message);
     Task<string?> ShowOpenFileDialogAsync(string title, string filters);
+    Task<string?> ShowOpenFolderDialogAsync(string title);
     Task<string?> ShowSaveFileDialogAsync(string title, string filters);
 }

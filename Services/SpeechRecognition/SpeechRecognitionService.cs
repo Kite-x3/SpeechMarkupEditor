@@ -15,6 +15,7 @@ using SpeechMarkupEditor.Infrastructure.Audio;
 using SpeechMarkupEditor.Infrastructure.Configuration;
 using SpeechMarkupEditor.Models;
 using SpeechMarkupEditor.Services.Dialog;
+using SpeechMarkupEditor.Services.RecognitionModels;
 using SpeechMarkupEditor.Services.WordSeries;
 using Vosk;
 
@@ -24,21 +25,22 @@ public class SpeechRecognitionService: ISpeechRecognitionService
 {
     private readonly IWordSeriesService _wordSeriesService;
     private readonly IDialogService _dialogService;
+    private readonly IRecognitionModelService _recognitionModelService;
     private readonly int _recognitionSampleRate;
     private readonly int _bufferSize;
-    private readonly string _modelPath;
-    private Model _model;
+    private Model? _model;
+    private string? _loadedModelPath;
     private bool _modelInitialized;
 
-    public SpeechRecognitionService(IWordSeriesService wordSeriesService, IDialogService dialogService, IOptions<AudioSettings> audioSettings, IOptions<ModelSettings> modelSettings)
+    public SpeechRecognitionService(IWordSeriesService wordSeriesService, IDialogService dialogService,
+        IOptions<AudioSettings> audioSettings, IRecognitionModelService recognitionModelService)
     {
         _dialogService = dialogService;
+        _recognitionModelService = recognitionModelService;
         Vosk.Vosk.SetLogLevel(-1);
-        EnsureModelInitialized();
         _wordSeriesService = wordSeriesService;
         _recognitionSampleRate = audioSettings.Value.RecognitionSampleRate;
         _bufferSize = audioSettings.Value.BufferSize;
-        _modelPath = modelSettings.Value.ModelPath;
     }
 
     /// <summary>
@@ -47,17 +49,24 @@ public class SpeechRecognitionService: ISpeechRecognitionService
     /// <returns>Возвращает флаг наличия модели</returns>
     private bool EnsureModelInitialized()
     {
-        if (_modelInitialized)
+        var currentModel = _recognitionModelService.GetCurrentModel();
+        var currentPath = currentModel?.Path;
+
+        if (_modelInitialized && _model != null &&
+            string.Equals(_loadedModelPath, currentPath, StringComparison.OrdinalIgnoreCase))
             return true;
 
         var possiblePaths = new List<string>();
 
-        if (!string.IsNullOrEmpty(_modelPath))
+        if (!string.IsNullOrEmpty(currentPath))
         {
-            possiblePaths.Add(_modelPath);
+            possiblePaths.Add(currentPath);
         }
 
-        possiblePaths.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "model"));
+        _model?.Dispose();
+        _model = null;
+        _loadedModelPath = null;
+        _modelInitialized = false;
 
         foreach (string path in possiblePaths.Distinct())
         {
@@ -68,6 +77,7 @@ public class SpeechRecognitionService: ISpeechRecognitionService
                     try
                     {
                         _model = new Model(path);
+                        _loadedModelPath = path;
                         _modelInitialized = true;
                         return true;
                     }
@@ -117,13 +127,13 @@ public class SpeechRecognitionService: ISpeechRecognitionService
         var leftWords = new List<WordTimestamp>();
         var rightWords = new List<WordTimestamp>();
 
-        var recLeft = new VoskRecognizer(_model, sampleRate);
+        var recLeft = new VoskRecognizer(_model!, sampleRate);
         recLeft.SetWords(true);
 
         VoskRecognizer? recRight = null;
         if (channels == 2)
         {
-            recRight = new VoskRecognizer(_model, sampleRate);
+            recRight = new VoskRecognizer(_model!, sampleRate);
             recRight.SetWords(true);
         }
 

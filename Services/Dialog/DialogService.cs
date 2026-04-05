@@ -219,6 +219,28 @@ public class DialogService : IDialogService
         }
     }
 
+    public async Task<string?> ShowOpenFolderDialogAsync(string title)
+    {
+        if (MainWindow is null)
+            return null;
+
+        try
+        {
+            var result = await MainWindow.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = title,
+                AllowMultiple = false
+            });
+
+            return result.Count > 0 ? result[0].TryGetLocalPath() : null;
+        }
+        catch (Exception ex)
+        {
+            await ShowDialogAsync(Resources.Error, $"{Resources.FileChoosingError}: {ex.Message}", _errorIcon.Value);
+            return null;
+        }
+    }
+
     public async Task<string?> ShowSaveFileDialogAsync(string title, string filters)
     {
         if (MainWindow is null) return null;

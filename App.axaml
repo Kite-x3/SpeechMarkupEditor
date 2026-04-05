@@ -12,5 +12,23 @@
 
     <Application.Styles>
         <FluentTheme />
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#F2F4F7"/>
+            <Setter Property="BorderBrush" Value="#D5DBE3"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Button:pointerover">
+            <Setter Property="Background" Value="#F7F9FC"/>
+            <Setter Property="BorderBrush" Value="#C8D0DA"/>
+        </Style>
+        <Style Selector="DropDownButton">
+            <Setter Property="Background" Value="#F2F4F7"/>
+            <Setter Property="BorderBrush" Value="#D5DBE3"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="DropDownButton:pointerover">
+            <Setter Property="Background" Value="#F7F9FC"/>
+            <Setter Property="BorderBrush" Value="#C8D0DA"/>
+        </Style>
     </Application.Styles>
 </Application>

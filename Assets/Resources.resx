@@ -132,4 +132,100 @@
     <data name="Warning" xml:space="preserve">
         <value>Предупреждение</value>
     </data>
+    <data name="Ok" xml:space="preserve">
+        <value>Ок</value>
+    </data>
+    <data name="ImportMarkup" xml:space="preserve">
+        <value>Импорт разметки</value>
+    </data>
+    <data name="Export" xml:space="preserve">
+        <value>Экспорт</value>
+    </data>
+    <data name="SelectRecognitionModel" xml:space="preserve">
+        <value>Выбрать модель распознавания</value>
+    </data>
+    <data name="SeriesTitleFormat" xml:space="preserve">
+        <value>Серия {0}</value>
+    </data>
+    <data name="ModelSettingsTitle" xml:space="preserve">
+        <value>Настройки моделей</value>
+    </data>
+    <data name="RecognitionModels" xml:space="preserve">
+        <value>Модели распознавания</value>
+    </data>
+    <data name="AvailableModels" xml:space="preserve">
+        <value>Доступные модели</value>
+    </data>
+    <data name="CurrentModel" xml:space="preserve">
+        <value>Текущая</value>
+    </data>
+    <data name="SetCurrentModel" xml:space="preserve">
+        <value>Сделать текущей</value>
+    </data>
+    <data name="AddModel" xml:space="preserve">
+        <value>Добавить модель</value>
+    </data>
+    <data name="Type" xml:space="preserve">
+        <value>Тип</value>
+    </data>
+    <data name="Name" xml:space="preserve">
+        <value>Название</value>
+    </data>
+    <data name="ModelPath" xml:space="preserve">
+        <value>Путь к модели</value>
+    </data>
+    <data name="SelectFolder" xml:space="preserve">
+        <value>Выбрать папку</value>
+    </data>
+    <data name="Close" xml:space="preserve">
+        <value>Закрыть</value>
+    </data>
+    <data name="VoskModelName" xml:space="preserve">
+        <value>Vosk(small)</value>
+    </data>
+    <data name="VoskEngineName" xml:space="preserve">
+        <value>Vosk</value>
+    </data>
+    <data name="SelectVoskModelFolder" xml:space="preserve">
+        <value>Выберите папку модели Vosk</value>
+    </data>
+    <data name="SpecifyModelNameAndPath" xml:space="preserve">
+        <value>Укажите название и путь к модели.</value>
+    </data>
+    <data name="ModelPathDoesNotExist" xml:space="preserve">
+        <value>Указанный путь к модели не существует.</value>
+    </data>
+    <data name="DeleteWordLeftChannelFormat" xml:space="preserve">
+        <value>Удалить слово '{0}' из левого канала?</value>
+    </data>
+    <data name="DeleteWordRightChannelFormat" xml:space="preserve">
+        <value>Удалить слово '{0}' из правого канала?</value>
+    </data>
+    <data name="Delete" xml:space="preserve">
+        <value>Удалить</value>
+    </data>
+    <data name="ImportMarkupDialogTitle" xml:space="preserve">
+        <value>Импорт разметки</value>
+    </data>
+    <data name="JsonFilesFilter" xml:space="preserve">
+        <value>JSON Files (*.json)|*.json</value>
+    </data>
+    <data name="InvalidMarkupFileFormat" xml:space="preserve">
+        <value>Файл разметки пустой или имеет неверный формат.</value>
+    </data>
+    <data name="ImportMarkupFailedFormat" xml:space="preserve">
+        <value>Не удалось импортировать разметку: {0}</value>
+    </data>
+    <data name="LeftChannelShort" xml:space="preserve">
+        <value>L</value>
+    </data>
+    <data name="RightChannelShort" xml:space="preserve">
+        <value>R</value>
+    </data>
+    <data name="RangeSeparator" xml:space="preserve">
+        <value>–</value>
+    </data>
+    <data name="RussianLanguageCode" xml:space="preserve">
+        <value>ru</value>
+    </data>
 </root>
