@@ -26,9 +26,11 @@ public class DialogService : IDialogService
     private readonly Lazy<WindowIcon?> _warningIcon;
     private readonly Lazy<WindowIcon?> _errorIcon;
     private readonly Lazy<WindowIcon?> _successIcon;
+    private readonly Lazy<WindowIcon?> _appIcon;
 
     public DialogService(IOptions<DialogSettings> settings)
     {
+        _appIcon = new Lazy<WindowIcon?>(() => LoadIcon("avares://SpeechMarkupEditor/Assets/SpeechMarkEditor.png"));
         _warningIcon = new Lazy<WindowIcon?>(() => LoadIcon(settings.Value.WarningIconPath));
         _errorIcon = new Lazy<WindowIcon?>(() => LoadIcon(settings.Value.ErrorIconPath));
         _successIcon = new Lazy<WindowIcon>(() => LoadIcon(settings.Value.SuccessIconPath));
@@ -86,7 +88,7 @@ public class DialogService : IDialogService
 
         var dialog = new Window
         {
-            Icon = icon,
+            Icon = ResolveDialogIcon(icon),
             Title = title,
             Content = new StackPanel
             {
@@ -137,7 +139,7 @@ public class DialogService : IDialogService
 
         var dialog = new Window
         {
-            Icon = icon,
+            Icon = ResolveDialogIcon(icon),
             Title = title,
             Content = new StackPanel
             {
@@ -179,6 +181,11 @@ public class DialogService : IDialogService
 
         await dialog.ShowDialog(MainWindow);
         return result;
+    }
+
+    private WindowIcon? ResolveDialogIcon(WindowIcon? icon)
+    {
+        return icon ?? _appIcon.Value;
     }
 
     public async Task ShowWarningAsync(string message)

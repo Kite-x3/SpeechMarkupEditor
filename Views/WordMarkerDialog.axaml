@@ -8,6 +8,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SpeechMarkupEditor.Views.WordMarkerDialog"
         x:DataType="vm:WordMarkerDialogViewModel"
+        Icon="/Assets/SpeechMarkEditor.png"
         Width="500" Height="250"
         Title="{x:Static res:Resources.WordMarkerDialogTitle}"
         WindowStartupLocation="CenterOwner">

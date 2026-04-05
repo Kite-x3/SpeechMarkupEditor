@@ -219,6 +219,21 @@
                             Command="{Binding CancelRecognitionCommand}"
                             IsVisible="{Binding IsProcessingAudio}"
                             HorizontalAlignment="Center"/>
+                    <Button Classes="action"
+                            Command="{Binding RestartRecognitionCommand}"
+                            IsVisible="{Binding !IsProcessingAudio}"
+                            IsEnabled="{Binding HasAudioLoaded}"
+                            HorizontalAlignment="Center">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <svg:Svg Path="avares://SpeechMarkupEditor/Assets/circle-reeat.svg"
+                                         Width="14"
+                                         Height="14"/>
+                                <TextBlock Text="{x:Static res:Resources.Recognize}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
                     <TextBlock HorizontalAlignment="Center" Text="{x:Static res:Resources.WordsInAudioFile}"
                                IsVisible="{Binding !IsProcessingAudio}" FontSize="16"></TextBlock>
                 </StackPanel>

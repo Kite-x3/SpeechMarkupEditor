@@ -102,6 +102,18 @@
     <data name="AudioProcessing" xml:space="preserve">
         <value>Поиск слов в аудио</value>
     </data>
+    <data name="Recognize" xml:space="preserve">
+        <value>Распознать</value>
+    </data>
+    <data name="StopRecognitionConfirmation" xml:space="preserve">
+        <value>Остановить распознавание?</value>
+    </data>
+    <data name="StopRecognition" xml:space="preserve">
+        <value>Остановить</value>
+    </data>
+    <data name="ContinueRecognition" xml:space="preserve">
+        <value>Продолжить</value>
+    </data>
     <data name="RecognitionCanceled" xml:space="preserve">
         <value>Распознавание отменено</value>
     </data>

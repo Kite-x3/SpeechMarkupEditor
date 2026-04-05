@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         x:Class="SpeechMarkupEditor.Views.ModelSettingsWindow"
         x:DataType="vm:ModelSettingsViewModel"
+        Icon="/Assets/SpeechMarkEditor.png"
         Title="{x:Static res:Resources.ModelSettingsTitle}"
         Width="760"
         Height="520"

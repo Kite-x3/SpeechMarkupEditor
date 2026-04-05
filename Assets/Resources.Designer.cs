@@ -229,6 +229,30 @@ namespace SpeechMarkupEditor.Assets {
             }
         }
 
+        public static string Recognize {
+            get {
+                return ResourceManager.GetString("Recognize", resourceCulture);
+            }
+        }
+
+        public static string StopRecognitionConfirmation {
+            get {
+                return ResourceManager.GetString("StopRecognitionConfirmation", resourceCulture);
+            }
+        }
+
+        public static string StopRecognition {
+            get {
+                return ResourceManager.GetString("StopRecognition", resourceCulture);
+            }
+        }
+
+        public static string ContinueRecognition {
+            get {
+                return ResourceManager.GetString("ContinueRecognition", resourceCulture);
+            }
+        }
+
         public static string RecognitionCanceled {
             get {
                 return ResourceManager.GetString("RecognitionCanceled", resourceCulture);

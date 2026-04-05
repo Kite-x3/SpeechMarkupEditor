@@ -34,6 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IExportService _exportService;
     private readonly IImportService _importService;
     private IAudioService? _audioService;
+    private IAudioSourceProvider? _currentAudioSource;
     private string _fullFilePath = string.Empty;
     private bool _disposed;
     private CancellationTokenSource? _recognitionCts;
@@ -203,35 +204,14 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
 
             _recognitionCts?.Cancel();
-            _recognitionCts?.Dispose();
-            _recognitionCts = new CancellationTokenSource();
-            var cancellationToken = _recognitionCts.Token;
-
-            LeftSeries.Clear();
-            RightSeries.Clear();
+            _currentAudioSource = source;
 
             await InitializeAudioService(source);
             SelectedFileName = source.DisplayName;
             IsFileSelected = true;
             HasAudioLoaded = true;
             await _visualizationService.UpdateVisualizationAsync(source);
-            IsProcessingAudio = true;
-            try
-            {
-                var recognitionResult = await _speechRecognitionService
-                    .RecognizeAsync(source, cancellationToken);
-
-                _wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries);
-                _wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries);
-            }
-            catch (OperationCanceledException)
-            {
-                await _dialogService.ShowWarningAsync(Resources.RecognitionCanceled);
-            }
-            finally
-            {
-                IsProcessingAudio = false;
-            }
+            await RunRecognitionAsync(source);
         }
 
         catch (Exception ex)
@@ -291,6 +271,7 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         _recognitionCts?.Cancel();
+        _currentAudioSource = null;
         CleanupAudioService();
 
         LeftSeries.Clear();
@@ -337,9 +318,62 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void CancelRecognition()
+    private async Task CancelRecognition()
+    {
+        if (!IsProcessingAudio || _recognitionCts == null)
+            return;
+
+        var shouldCancel = await _dialogService.ShowConfirmationAsync(
+            Resources.Warning,
+            Resources.StopRecognitionConfirmation,
+            Resources.StopRecognition,
+            Resources.ContinueRecognition);
+
+        if (!shouldCancel)
+            return;
+
+        _recognitionCts?.Cancel();
+    }
+
+    [RelayCommand]
+    private async Task RestartRecognition()
+    {
+        if (!HasAudioLoaded || _currentAudioSource == null || IsProcessingAudio)
+            return;
+
+        await RunRecognitionAsync(_currentAudioSource);
+    }
+
+    private async Task RunRecognitionAsync(IAudioSourceProvider source)
     {
         _recognitionCts?.Cancel();
+        _recognitionCts?.Dispose();
+        _recognitionCts = new CancellationTokenSource();
+
+        var cancellationToken = _recognitionCts.Token;
+        LeftSeries.Clear();
+        RightSeries.Clear();
+        IsProcessingAudio = true;
+
+        try
+        {
+            var recognitionResult = await _speechRecognitionService
+                .RecognizeAsync(source, cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            _wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries);
+            _wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries);
+        }
+        catch (OperationCanceledException)
+        {
+            // Cancellation is expected and confirmed by user.
+        }
+        finally
+        {
+            IsProcessingAudio = false;
+        }
     }
 
     /// <summary>
