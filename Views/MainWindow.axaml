@@ -240,12 +240,19 @@
             </Border>
             <!-- Р—Р°РіРѕР»РѕРІРєРё L / R -->
             <TextBlock Grid.Row="1" Text="{x:Static res:Resources.LeftChannelShort}" Grid.Column="0" HorizontalAlignment="Center"
-                       FontSize="16" FontWeight="Bold" Foreground="{StaticResource LeftLetter}"/>
+                       FontSize="16" FontWeight="Bold" Foreground="{StaticResource LeftLetter}"
+                       IsVisible="{Binding !IsNonDichoticRecognition}"/>
             <TextBlock Grid.Row="1" Text="{x:Static res:Resources.RightChannelShort}" Grid.Column="1" HorizontalAlignment="Center"
-                       FontSize="16" FontWeight="Bold" Foreground="{StaticResource RightLetter}"/>
+                       FontSize="16" FontWeight="Bold" Foreground="{StaticResource RightLetter}"
+                       IsVisible="{Binding !IsNonDichoticRecognition}"/>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{x:Static res:Resources.Recognized}"
+                       HorizontalAlignment="Center"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       IsVisible="{Binding IsNonDichoticRecognition}"/>
 
             <!-- Р›РµРІР°СЏ РїР°РЅРµР»СЊ -->
-            <Border Grid.Row="2" Grid.Column="0" Classes="PanelStyle" BorderBrush="{StaticResource LeftLetter}"
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="{Binding LeftSeriesColumnSpan}" Classes="PanelStyle" BorderBrush="{StaticResource LeftLetter}"
                     BorderThickness="1.5">
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
@@ -325,7 +332,8 @@
             </Border>
             <!-- РџСЂР°РІР°СЏ РїР°РЅРµР»СЊ -->
             <Border Grid.Row="2" Grid.Column="1" Classes="PanelStyle" BorderBrush="{StaticResource RightLetter}"
-                    BorderThickness="1.5">
+                    BorderThickness="1.5"
+                    IsVisible="{Binding !IsNonDichoticRecognition}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding RightSeries}">

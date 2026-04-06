@@ -1,6 +1,7 @@
 ﻿﻿// Copyright (C) Neurosoft
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -114,6 +115,12 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     private bool _isProcessingAudio;
+
+    [ObservableProperty]
+    private bool _isNonDichoticRecognition;
+
+    [ObservableProperty]
+    private int _leftSeriesColumnSpan = 1;
 
     public double VolumePercentage => Volume * 100;
 
@@ -287,6 +294,8 @@ public partial class MainWindowViewModel : ViewModelBase
             RightSeries.Add(series);
         }
 
+        UpdateRecognitionPresentationMode();
+
         SelectedFileName = importedMarkup.FileName;
         IsFileSelected = true;
         HasAudioLoaded = false;
@@ -365,6 +374,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             _wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries);
             _wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries);
+            UpdateRecognitionPresentationMode();
         }
         catch (OperationCanceledException)
         {
@@ -373,6 +383,7 @@ public partial class MainWindowViewModel : ViewModelBase
         finally
         {
             IsProcessingAudio = false;
+            UpdateRecognitionPresentationMode();
         }
     }
 
@@ -429,6 +440,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 _wordSeriesService.AddWordToSeries(RightSeries, word);
                 break;
         }
+
+        UpdateRecognitionPresentationMode();
     }
 
     [RelayCommand]
@@ -444,6 +457,7 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         _wordSeriesService.RemoveWordFromSeries(LeftSeries, word);
+        UpdateRecognitionPresentationMode();
     }
 
     [RelayCommand]
@@ -459,6 +473,48 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         _wordSeriesService.RemoveWordFromSeries(RightSeries, word);
+        UpdateRecognitionPresentationMode();
+    }
+
+    private void UpdateRecognitionPresentationMode()
+    {
+        IsNonDichoticRecognition = AreSeriesCollectionsEqual(LeftSeries, RightSeries);
+        LeftSeriesColumnSpan = IsNonDichoticRecognition ? 2 : 1;
+    }
+
+    private static bool AreSeriesCollectionsEqual(IReadOnlyList<Series> left, IReadOnlyList<Series> right)
+    {
+        if (left.Count == 0 && right.Count == 0)
+            return false;
+
+        if (left.Count != right.Count)
+            return false;
+
+        for (var i = 0; i < left.Count; i++)
+        {
+            var leftWords = left[i].Words;
+            var rightWords = right[i].Words;
+
+            if (leftWords.Count != rightWords.Count)
+                return false;
+
+            for (var j = 0; j < leftWords.Count; j++)
+            {
+                var l = leftWords[j];
+                var r = rightWords[j];
+
+                if (!string.Equals(l.Word, r.Word, StringComparison.Ordinal))
+                    return false;
+
+                if (Math.Abs(l.StartTime - r.StartTime) > 0.001)
+                    return false;
+
+                if (Math.Abs(l.EndTime - r.EndTime) > 0.001)
+                    return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

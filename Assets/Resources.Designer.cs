@@ -188,6 +188,12 @@ namespace SpeechMarkupEditor.Assets {
             }
         }
 
+        public static string Recognized {
+            get {
+                return ResourceManager.GetString("Recognized", resourceCulture);
+            }
+        }
+
         public static string AddWord {
             get {
                 return ResourceManager.GetString("AddWord", resourceCulture);

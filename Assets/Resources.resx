@@ -81,6 +81,9 @@
     <data name="WordsInAudioFile" xml:space="preserve">
         <value>Слова в аудиофайле</value>
     </data>
+    <data name="Recognized" xml:space="preserve">
+        <value>Распознано</value>
+    </data>
     <data name="AddWord" xml:space="preserve">
         <value>Добавить слово</value>
     </data>
