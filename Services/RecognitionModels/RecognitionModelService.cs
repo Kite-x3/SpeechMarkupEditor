@@ -22,7 +22,7 @@ public class RecognitionModelService : IRecognitionModelService
 
     public RecognitionModelService(IOptions<ModelSettings> modelSettings)
     {
-        _settingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+        _settingsPath = ResolveSettingsPath();
         _settingsDirectory = Path.GetDirectoryName(_settingsPath) ?? AppContext.BaseDirectory;
         _models = BuildInitialModels(modelSettings.Value);
     }
@@ -96,6 +96,27 @@ public class RecognitionModelService : IRecognitionModelService
             });
         }
 
+        if (models.Count == 0)
+        {
+            foreach (var path in settings.AvailableModels)
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    continue;
+
+                var normalizedPath = NormalizePath(path);
+                if (models.Any(model => PathsEqual(model.Path, normalizedPath)))
+                    continue;
+
+                models.Add(new RecognitionModelDefinition
+                {
+                    Name = Path.GetFileName(normalizedPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+                    Engine = Resources.VoskEngineName,
+                    Path = normalizedPath,
+                    IsCurrent = false
+                });
+            }
+        }
+
         if (models.Count == 0 && !string.IsNullOrWhiteSpace(settings.ModelPath))
         {
             models.Add(new RecognitionModelDefinition
@@ -126,6 +147,9 @@ public class RecognitionModelService : IRecognitionModelService
         root["ModelSettings"] = new JsonObject
         {
             ["ModelPath"] = currentModel == null ? string.Empty : ToConfigPath(currentModel.Path),
+            ["AvailableModels"] = new JsonArray(_models
+                .Select(model => (JsonNode)ToConfigPath(model.Path))
+                .ToArray()),
             ["Models"] = new JsonArray(_models.Select(model =>
                 (JsonNode)new JsonObject
                 {
@@ -138,6 +162,24 @@ public class RecognitionModelService : IRecognitionModelService
 
         var options = new JsonSerializerOptions { WriteIndented = true };
         await File.WriteAllTextAsync(_settingsPath, root.ToJsonString(options));
+    }
+
+    private string ResolveSettingsPath()
+    {
+        var baseDirectory = AppContext.BaseDirectory;
+        var currentDirectory = new DirectoryInfo(baseDirectory);
+
+        while (currentDirectory != null)
+        {
+            var candidateSettingsPath = Path.Combine(currentDirectory.FullName, "appsettings.json");
+            var hasProjectFile = currentDirectory.GetFiles("*.csproj").Length > 0;
+            if (hasProjectFile && File.Exists(candidateSettingsPath))
+                return candidateSettingsPath;
+
+            currentDirectory = currentDirectory.Parent;
+        }
+
+        return Path.Combine(baseDirectory, "appsettings.json");
     }
 
     private string NormalizePath(string path)
