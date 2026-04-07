@@ -153,8 +153,8 @@
     <data name="ImportMarkup" xml:space="preserve">
         <value>Импорт разметки</value>
     </data>
-    <data name="Export" xml:space="preserve">
-        <value>Экспорт</value>
+    <data name="ExportMarkup" xml:space="preserve">
+        <value>Экспорт разметки</value>
     </data>
     <data name="SelectRecognitionModel" xml:space="preserve">
         <value>Выбрать модель распознавания</value>
@@ -259,7 +259,7 @@
         <value>История разметок</value>
     </data>
     <data name="MarkupHistoryHint" xml:space="preserve">
-        <value>Здесь хранятся сохраненные снимки разметки из базы данных.</value>
+        <value>История записей разметки, сохранённые в базе данных.</value>
     </data>
     <data name="Refresh" xml:space="preserve">
         <value>Обновить</value>

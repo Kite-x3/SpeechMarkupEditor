@@ -331,9 +331,9 @@ namespace SpeechMarkupEditor.Assets {
             }
         }
 
-        public static string Export {
+        public static string ExportMarkup {
             get {
-                return ResourceManager.GetString("Export", resourceCulture);
+                return ResourceManager.GetString("ExportMarkup", resourceCulture);
             }
         }
 

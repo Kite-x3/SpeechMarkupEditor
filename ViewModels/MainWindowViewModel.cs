@@ -124,6 +124,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private int _leftSeriesColumnSpan = 1;
 
+    [ObservableProperty]
+    private bool _showSeries = true;
+
     public double VolumePercentage => Volume * 100;
 
     public MainWindowViewModel(){}

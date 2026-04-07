@@ -111,7 +111,7 @@
         </Style>
     </Window.Styles>
 
-    <Grid RowDefinitions="100,Auto,*" Margin="15,10" RowSpacing="10">
+    <Grid RowDefinitions="Auto,Auto,*" Margin="15,10" RowSpacing="10">
         <Border Grid.Row="0" Classes="toolbar-panel">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
@@ -121,9 +121,20 @@
                                      Width="20" Height="20"/>
                         </DropDownButton.Content>
                         <DropDownButton.Flyout>
-                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                                <MenuItem Header="{x:Static res:Resources.SelectRecognitionModel}" Click="ModelSettingsMenuItem_OnClick"/>
-                            </MenuFlyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <StackPanel Spacing="8" VerticalAlignment="Stretch">
+                                    <Button Content="{x:Static res:Resources.SelectRecognitionModel}"
+                                            Click="ModelSettingsMenuItem_OnClick"
+                                            HorizontalAlignment="Stretch"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock Text="Серии" VerticalAlignment="Center"/>
+                                        <ToggleSwitch VerticalAlignment="Center"
+                                                      IsChecked="{Binding ShowSeries, Mode=TwoWay}"
+                                                      OnContent="Вкл"
+                                                      OffContent="Выкл"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Flyout>
                         </DropDownButton.Flyout>
                     </DropDownButton>
 
@@ -135,11 +146,11 @@
                             <MenuFlyout Placement="BottomEdgeAlignedLeft">
                                 <MenuItem Header="{x:Static res:Resources.SelectWavFile}"
                                           Command="{Binding SelectWavFileCommand}"/>
-                                <MenuItem Header="{x:Static res:Resources.ImportMarkup}"
-                                          Command="{Binding ImportMarkupCommand}"/>
                                 <MenuItem Header="{x:Static res:Resources.OpenHistory}"
                                           Click="OpenHistoryMenuItem_OnClick"/>
-                                <MenuItem Header="{x:Static res:Resources.Export}"
+                                <MenuItem Header="{x:Static res:Resources.ImportMarkup}"
+                                          Command="{Binding ImportMarkupCommand}"/>
+                                <MenuItem Header="{x:Static res:Resources.ExportMarkup}"
                                           Command="{Binding ExportCommand}"
                                           IsEnabled="{Binding IsFileSelected}"/>
                             </MenuFlyout>
@@ -353,7 +364,7 @@
                     BorderBrush="{StaticResource LeftLetter}"
                     BorderThickness="1.5">
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0" IsVisible="{Binding ShowSeries}">
                         <ItemsControl ItemsSource="{Binding LeftSeries}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -415,6 +426,61 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0" IsVisible="{Binding !ShowSeries}">
+                        <ItemsControl ItemsSource="{Binding LeftSeries}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ItemsControl ItemsSource="{Binding Words}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="6,4"
+                                                      ColumnDefinitions="*,Auto,Auto"
+                                                      ColumnSpacing="12">
+                                                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{x:Static res:Resources.Word}"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="1"
+                                                                 Text="{Binding Word}"
+                                                                 VerticalAlignment="Center"
+                                                                 FontWeight="Bold"/>
+                                                    </Grid>
+                                                    <Border Grid.Column="1"
+                                                            BorderBrush="#CCC"
+                                                            BorderThickness="1"
+                                                            Padding="6,4"
+                                                            CornerRadius="4">
+                                                        <Grid ColumnDefinitions="Auto,160,Auto,160"
+                                                              ColumnSpacing="6"
+                                                              VerticalAlignment="Center">
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{x:Static res:Resources.WordTiming}"
+                                                                       VerticalAlignment="Center"/>
+                                                            <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
+                                                            <TextBlock Grid.Column="2"
+                                                                       Text="{x:Static res:Resources.RangeSeparator}"
+                                                                       VerticalAlignment="Center"/>
+                                                            <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <Button Grid.Column="2"
+                                                            Classes="delete-word"
+                                                            Command="{ReflectionBinding DataContext.RemoveLeftWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}"
+                                                            VerticalAlignment="Center">
+                                                        <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                                 Width="16"
+                                                                 Height="16"/>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
 
@@ -424,70 +490,127 @@
                     BorderBrush="{StaticResource RightLetter}"
                     BorderThickness="1.5"
                     IsVisible="{Binding !IsNonDichoticRecognition}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
-                    <StackPanel>
+                <Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0" IsVisible="{Binding ShowSeries}">
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{Binding RightSeries}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10" Margin="0,0,0,10" BorderBrush="Gray" BorderThickness="0,0,0,2">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding SeriesNumber, StringFormat={x:Static res:Resources.SeriesTitleFormat}}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource RightLetter}"
+                                                           Margin="0,0,0,5"/>
+                                                <ItemsControl ItemsSource="{Binding Words}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="6,4"
+                                                                  ColumnDefinitions="*,Auto,Auto"
+                                                                  ColumnSpacing="12">
+                                                                <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{x:Static res:Resources.Word}"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBox Grid.Column="1"
+                                                                             Text="{Binding Word}"
+                                                                             VerticalAlignment="Center"
+                                                                             FontWeight="Bold"/>
+                                                                </Grid>
+                                                                <Border Grid.Column="1"
+                                                                        BorderBrush="#CCC"
+                                                                        BorderThickness="1"
+                                                                        Padding="6,4"
+                                                                        CornerRadius="4">
+                                                                    <Grid ColumnDefinitions="Auto,160,Auto,160"
+                                                                          ColumnSpacing="6"
+                                                                          VerticalAlignment="Center">
+                                                                        <TextBlock Grid.Column="0"
+                                                                                   Text="{x:Static res:Resources.WordTiming}"
+                                                                                   VerticalAlignment="Center"/>
+                                                                        <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
+                                                                        <TextBlock Grid.Column="2"
+                                                                                   Text="{x:Static res:Resources.RangeSeparator}"
+                                                                                   VerticalAlignment="Center"/>
+                                                                        <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                                <Button Grid.Column="2"
+                                                                        Classes="delete-word"
+                                                                        Command="{ReflectionBinding DataContext.RemoveRightWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        CommandParameter="{Binding .}"
+                                                                        VerticalAlignment="Center">
+                                                                    <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                                             Width="16"
+                                                                             Height="16"/>
+                                                                </Button>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0" IsVisible="{Binding !ShowSeries}">
                         <ItemsControl ItemsSource="{Binding RightSeries}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="10" Margin="0,0,0,10" BorderBrush="Gray" BorderThickness="0,0,0,2">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding SeriesNumber, StringFormat={x:Static res:Resources.SeriesTitleFormat}}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource RightLetter}"
-                                                       Margin="0,0,0,5"/>
-                                            <ItemsControl ItemsSource="{Binding Words}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="6,4"
-                                                              ColumnDefinitions="*,Auto,Auto"
-                                                              ColumnSpacing="12">
-                                                            <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
-                                                                <TextBlock Grid.Column="0"
-                                                                           Text="{x:Static res:Resources.Word}"
-                                                                           VerticalAlignment="Center"/>
-                                                                <TextBox Grid.Column="1"
-                                                                         Text="{Binding Word}"
-                                                                         VerticalAlignment="Center"
-                                                                         FontWeight="Bold"/>
-                                                            </Grid>
-                                                            <Border Grid.Column="1"
-                                                                    BorderBrush="#CCC"
-                                                                    BorderThickness="1"
-                                                                    Padding="6,4"
-                                                                    CornerRadius="4">
-                                                                <Grid ColumnDefinitions="Auto,160,Auto,160"
-                                                                      ColumnSpacing="6"
-                                                                      VerticalAlignment="Center">
-                                                                    <TextBlock Grid.Column="0"
-                                                                               Text="{x:Static res:Resources.WordTiming}"
-                                                                               VerticalAlignment="Center"/>
-                                                                    <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
-                                                                    <TextBlock Grid.Column="2"
-                                                                               Text="{x:Static res:Resources.RangeSeparator}"
-                                                                               VerticalAlignment="Center"/>
-                                                                    <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
-                                                                </Grid>
-                                                            </Border>
-                                                            <Button Grid.Column="2"
-                                                                    Classes="delete-word"
-                                                                    Command="{ReflectionBinding DataContext.RemoveRightWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                    CommandParameter="{Binding .}"
-                                                                    VerticalAlignment="Center">
-                                                                <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
-                                                                         Width="16"
-                                                                         Height="16"/>
-                                                            </Button>
+                                    <ItemsControl ItemsSource="{Binding Words}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="6,4"
+                                                      ColumnDefinitions="*,Auto,Auto"
+                                                      ColumnSpacing="12">
+                                                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{x:Static res:Resources.Word}"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="1"
+                                                                 Text="{Binding Word}"
+                                                                 VerticalAlignment="Center"
+                                                                 FontWeight="Bold"/>
+                                                    </Grid>
+                                                    <Border Grid.Column="1"
+                                                            BorderBrush="#CCC"
+                                                            BorderThickness="1"
+                                                            Padding="6,4"
+                                                            CornerRadius="4">
+                                                        <Grid ColumnDefinitions="Auto,160,Auto,160"
+                                                              ColumnSpacing="6"
+                                                              VerticalAlignment="Center">
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{x:Static res:Resources.WordTiming}"
+                                                                       VerticalAlignment="Center"/>
+                                                            <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"/>
+                                                            <TextBlock Grid.Column="2"
+                                                                       Text="{x:Static res:Resources.RangeSeparator}"
+                                                                       VerticalAlignment="Center"/>
+                                                            <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"/>
                                                         </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </StackPanel>
-                                    </Border>
+                                                    </Border>
+                                                    <Button Grid.Column="2"
+                                                            Classes="delete-word"
+                                                            Command="{ReflectionBinding DataContext.RemoveRightWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}"
+                                                            VerticalAlignment="Center">
+                                                        <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                                 Width="16"
+                                                                 Height="16"/>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
-                </ScrollViewer>
+                    </ScrollViewer>
+                </Grid>
             </Border>
         </Grid>
     </Grid>

@@ -76,13 +76,16 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Content="{x:Static res:Resources.Delete}"
                     Command="{Binding DeleteSelectedCommand}"
-                    MinWidth="120"/>
+                    HorizontalContentAlignment="Center"
+                    MinWidth="100"/>
             <Button Content="{x:Static res:Resources.Open}"
                     Click="OpenButton_OnClick"
-                    MinWidth="120"/>
+                    MinWidth="100"
+                    HorizontalContentAlignment="Center"/>
             <Button Content="{x:Static res:Resources.Close}"
                     Click="CloseButton_OnClick"
-                    MinWidth="120"/>
+                    MinWidth="100"
+                    HorizontalContentAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>
