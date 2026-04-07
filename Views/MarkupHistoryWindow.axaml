@@ -1,0 +1,88 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:SpeechMarkupEditor.ViewModels"
+        xmlns:models="using:SpeechMarkupEditor.Models"
+        xmlns:res="clr-namespace:SpeechMarkupEditor.Assets"
+        mc:Ignorable="d"
+        x:Class="SpeechMarkupEditor.Views.MarkupHistoryWindow"
+        x:DataType="vm:MarkupHistoryViewModel"
+        Icon="/Assets/SpeechMarkEditor.png"
+        Title="{x:Static res:Resources.MarkupHistoryTitle}"
+        Width="920"
+        Height="520"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16" RowSpacing="12">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <TextBlock Text="{x:Static res:Resources.MarkupHistoryTitle}"
+                       FontSize="20"
+                       FontWeight="SemiBold"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Content="{x:Static res:Resources.Refresh}"
+                        Command="{Binding RefreshCommand}"/>
+                <Button Content="{x:Static res:Resources.ClearHistory}"
+                        Command="{Binding ClearAllCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1"
+                BorderBrush="#D0D0D0"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="12">
+            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                <TextBlock Text="{x:Static res:Resources.MarkupHistoryHint}"
+                           Foreground="#666666"
+                           TextWrapping="Wrap"/>
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Entries}"
+                         SelectedItem="{Binding SelectedEntry, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:MarkupHistoryEntrySummary">
+                            <Border Margin="0,0,0,8"
+                                    Padding="10"
+                                    BorderBrush="#D8D8D8"
+                                    BorderThickness="1"
+                                    CornerRadius="6">
+                                <Grid ColumnDefinitions="240,*,170" ColumnSpacing="12">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding FileName}"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Top"
+                                               TextWrapping="Wrap"/>
+                                    <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="{x:Static res:Resources.Source}"
+                                                   Foreground="#666666"/>
+                                        <TextBlock Text="{Binding SourcePath}"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Spacing="4" HorizontalAlignment="Right">
+                                        <TextBlock Text="{x:Static res:Resources.CreatedAt}"
+                                                   Foreground="#666666"
+                                                   HorizontalAlignment="Right"/>
+                                        <TextBlock Text="{Binding CreatedAtUtc, StringFormat='{}{0:dd.MM.yyyy HH:mm:ss}'}"
+                                                   HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{x:Static res:Resources.Delete}"
+                    Command="{Binding DeleteSelectedCommand}"
+                    MinWidth="120"/>
+            <Button Content="{x:Static res:Resources.Open}"
+                    Click="OpenButton_OnClick"
+                    MinWidth="120"/>
+            <Button Content="{x:Static res:Resources.Close}"
+                    Click="CloseButton_OnClick"
+                    MinWidth="120"/>
+        </StackPanel>
+    </Grid>
+</Window>

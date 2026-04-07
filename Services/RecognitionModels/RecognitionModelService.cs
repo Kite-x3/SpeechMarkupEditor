@@ -4,27 +4,32 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SpeechMarkupEditor.Assets;
 using SpeechMarkupEditor.Infrastructure.Configuration;
+using SpeechMarkupEditor.Infrastructure.Data;
+using SpeechMarkupEditor.Infrastructure.Data.Entities;
 using SpeechMarkupEditor.Models;
 
 namespace SpeechMarkupEditor.Services.RecognitionModels;
 
 public class RecognitionModelService : IRecognitionModelService
 {
-    private readonly string _settingsPath;
-    private readonly string _settingsDirectory;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly List<RecognitionModelDefinition> _models;
+    private readonly string _baseModelPath;
 
-    public RecognitionModelService(IOptions<ModelSettings> modelSettings)
+    public RecognitionModelService(
+        IOptions<ModelSettings> modelSettings,
+        IDbContextFactory<AppDbContext> dbContextFactory)
     {
-        _settingsPath = ResolveSettingsPath();
-        _settingsDirectory = Path.GetDirectoryName(_settingsPath) ?? AppContext.BaseDirectory;
-        _models = BuildInitialModels(modelSettings.Value);
+        _dbContextFactory = dbContextFactory;
+        _baseModelPath = NormalizePath(modelSettings.Value.ModelPath);
+        using var dbContext = _dbContextFactory.CreateDbContext();
+        dbContext.Database.EnsureCreated();
+        _models = LoadOrSeedModels(dbContext, modelSettings.Value);
     }
 
     public IReadOnlyList<RecognitionModelDefinition> GetModels()
@@ -47,6 +52,8 @@ public class RecognitionModelService : IRecognitionModelService
         if (existing != null)
         {
             existing.Name = name;
+            existing.Engine = Resources.VoskEngineName;
+            existing.IsDeletable = IsDeletablePath(existing.Path);
             await SetCurrentModelAsync(existing.Path);
             return;
         }
@@ -61,7 +68,8 @@ public class RecognitionModelService : IRecognitionModelService
             Name = name,
             Engine = Resources.VoskEngineName,
             Path = normalizedPath,
-            IsCurrent = true
+            IsCurrent = true,
+            IsDeletable = IsDeletablePath(normalizedPath)
         });
 
         await SaveAsync();
@@ -78,8 +86,48 @@ public class RecognitionModelService : IRecognitionModelService
         await SaveAsync();
     }
 
-    private List<RecognitionModelDefinition> BuildInitialModels(ModelSettings settings)
+    public async Task DeleteModelAsync(string path)
     {
+        var normalizedPath = NormalizePath(path);
+        var modelToRemove = _models.FirstOrDefault(model => PathsEqual(model.Path, normalizedPath));
+        if (modelToRemove == null || !modelToRemove.IsDeletable)
+            return;
+
+        var removedWasCurrent = modelToRemove.IsCurrent;
+        _models.Remove(modelToRemove);
+
+        if (removedWasCurrent && _models.Count > 0 && _models.All(model => !model.IsCurrent))
+            _models[0].IsCurrent = true;
+
+        await SaveAsync();
+    }
+
+    private List<RecognitionModelDefinition> LoadOrSeedModels(AppDbContext dbContext, ModelSettings settings)
+    {
+        var persistedModels = dbContext.RecognitionModels
+            .AsNoTracking()
+            .OrderByDescending(model => model.IsCurrent)
+            .ThenBy(model => model.Name)
+            .Select(model => new RecognitionModelDefinition
+            {
+                Name = model.Name,
+                Engine = model.Engine,
+                Path = model.Path,
+                IsCurrent = model.IsCurrent
+            })
+            .ToList();
+
+        foreach (var model in persistedModels)
+        {
+            model.IsDeletable = IsDeletablePath(model.Path);
+        }
+
+        if (persistedModels.Count > 0)
+        {
+            EnsureCurrentModelAssigned(persistedModels);
+            return persistedModels;
+        }
+
         var models = new List<RecognitionModelDefinition>();
 
         foreach (var item in settings.Models)
@@ -92,7 +140,8 @@ public class RecognitionModelService : IRecognitionModelService
                 Name = string.IsNullOrWhiteSpace(item.Name) ? Resources.VoskModelName : item.Name,
                 Engine = string.IsNullOrWhiteSpace(item.Engine) ? Resources.VoskEngineName : item.Engine,
                 Path = NormalizePath(item.Path),
-                IsCurrent = item.IsCurrent
+                IsCurrent = item.IsCurrent,
+                IsDeletable = IsDeletablePath(item.Path)
             });
         }
 
@@ -112,7 +161,8 @@ public class RecognitionModelService : IRecognitionModelService
                     Name = Path.GetFileName(normalizedPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
                     Engine = Resources.VoskEngineName,
                     Path = normalizedPath,
-                    IsCurrent = false
+                    IsCurrent = false,
+                    IsDeletable = IsDeletablePath(normalizedPath)
                 });
             }
         }
@@ -124,7 +174,8 @@ public class RecognitionModelService : IRecognitionModelService
                 Name = $"{Resources.VoskModelName} - {Resources.RussianLanguageCode}",
                 Engine = Resources.VoskEngineName,
                 Path = NormalizePath(settings.ModelPath),
-                IsCurrent = true
+                IsCurrent = true,
+                IsDeletable = IsDeletablePath(settings.ModelPath)
             });
         }
 
@@ -133,53 +184,35 @@ public class RecognitionModelService : IRecognitionModelService
             models[0].IsCurrent = true;
         }
 
+        dbContext.RecognitionModels.AddRange(models.Select(model => new RecognitionModelEntity
+        {
+            Name = model.Name,
+            Engine = model.Engine,
+            Path = model.Path,
+            IsCurrent = model.IsCurrent
+        }));
+        dbContext.SaveChanges();
+
         return models;
     }
 
     private async Task SaveAsync()
     {
-        if (!File.Exists(_settingsPath))
-            return;
+        EnsureCurrentModelAssigned(_models);
 
-        var root = JsonNode.Parse(await File.ReadAllTextAsync(_settingsPath))?.AsObject() ?? new JsonObject();
-        var currentModel = _models.FirstOrDefault(model => model.IsCurrent);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var existingEntities = await dbContext.RecognitionModels.ToListAsync();
+        dbContext.RecognitionModels.RemoveRange(existingEntities);
+        await dbContext.SaveChangesAsync();
 
-        root["ModelSettings"] = new JsonObject
+        dbContext.RecognitionModels.AddRange(_models.Select(model => new RecognitionModelEntity
         {
-            ["ModelPath"] = currentModel == null ? string.Empty : ToConfigPath(currentModel.Path),
-            ["AvailableModels"] = new JsonArray(_models
-                .Select(model => (JsonNode)ToConfigPath(model.Path))
-                .ToArray()),
-            ["Models"] = new JsonArray(_models.Select(model =>
-                (JsonNode)new JsonObject
-                {
-                    ["Name"] = model.Name,
-                    ["Engine"] = model.Engine,
-                    ["Path"] = ToConfigPath(model.Path),
-                    ["IsCurrent"] = model.IsCurrent
-                }).ToArray())
-        };
-
-        var options = new JsonSerializerOptions { WriteIndented = true };
-        await File.WriteAllTextAsync(_settingsPath, root.ToJsonString(options));
-    }
-
-    private string ResolveSettingsPath()
-    {
-        var baseDirectory = AppContext.BaseDirectory;
-        var currentDirectory = new DirectoryInfo(baseDirectory);
-
-        while (currentDirectory != null)
-        {
-            var candidateSettingsPath = Path.Combine(currentDirectory.FullName, "appsettings.json");
-            var hasProjectFile = currentDirectory.GetFiles("*.csproj").Length > 0;
-            if (hasProjectFile && File.Exists(candidateSettingsPath))
-                return candidateSettingsPath;
-
-            currentDirectory = currentDirectory.Parent;
-        }
-
-        return Path.Combine(baseDirectory, "appsettings.json");
+            Name = model.Name,
+            Engine = model.Engine,
+            Path = NormalizePath(model.Path),
+            IsCurrent = model.IsCurrent
+        }));
+        await dbContext.SaveChangesAsync();
     }
 
     private string NormalizePath(string path)
@@ -190,7 +223,7 @@ public class RecognitionModelService : IRecognitionModelService
         if (Path.IsPathRooted(path))
             return Path.GetFullPath(path);
 
-        return Path.GetFullPath(Path.Combine(_settingsDirectory, path));
+        return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
     }
 
     private bool PathsEqual(string left, string right)
@@ -198,12 +231,17 @@ public class RecognitionModelService : IRecognitionModelService
         return string.Equals(NormalizePath(left), NormalizePath(right), StringComparison.OrdinalIgnoreCase);
     }
 
-    private string ToConfigPath(string path)
+    private bool IsDeletablePath(string path)
     {
-        var normalized = NormalizePath(path);
-        if (string.IsNullOrWhiteSpace(normalized))
-            return string.Empty;
+        if (string.IsNullOrWhiteSpace(_baseModelPath))
+            return true;
 
-        return Path.GetRelativePath(_settingsDirectory, normalized);
+        return !PathsEqual(path, _baseModelPath);
+    }
+
+    private static void EnsureCurrentModelAssigned(List<RecognitionModelDefinition> models)
+    {
+        if (models.Count > 0 && models.All(model => !model.IsCurrent))
+            models[0].IsCurrent = true;
     }
 }

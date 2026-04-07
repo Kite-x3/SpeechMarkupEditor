@@ -5,6 +5,7 @@
         xmlns:vm="using:SpeechMarkupEditor.ViewModels"
         xmlns:rm="using:SpeechMarkupEditor.Models"
         xmlns:res="clr-namespace:SpeechMarkupEditor.Assets"
+        xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Avalonia.Svg.Skia"
         mc:Ignorable="d"
         x:Class="SpeechMarkupEditor.Views.ModelSettingsWindow"
         x:DataType="vm:ModelSettingsViewModel"
@@ -28,19 +29,36 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="rm:RecognitionModelDefinition">
                                     <Border Margin="0,0,0,10" Padding="10" BorderBrush="#D8D8D8" BorderThickness="1" CornerRadius="6">
-                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                            <StackPanel>
+                                        <Grid ColumnDefinitions="*,150" ColumnSpacing="16">
+                                            <StackPanel Grid.Column="0">
                                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding Engine}" Foreground="#666666"/>
                                                 <TextBlock Text="{Binding Path}" TextWrapping="Wrap" Foreground="#666666"/>
                                             </StackPanel>
-                                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
                                                 <TextBlock Text="{x:Static res:Resources.CurrentModel}" IsVisible="{Binding IsCurrent}" HorizontalAlignment="Right"/>
                                                 <Button Content="{x:Static res:Resources.SetCurrentModel}"
                                                         Command="{ReflectionBinding DataContext.SetCurrentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding .}"
                                                         IsVisible="{Binding !IsCurrent}"
-                                                        Margin="0 0 0 15"/>
+                                                        HorizontalAlignment="Right"/>
+                                                <Button Command="{ReflectionBinding DataContext.DeleteModelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding .}"
+                                                        IsVisible="{Binding IsDeletable}"
+                                                        Width="40"
+                                                        Height="36"
+                                                        Padding="0"
+                                                        Background="#C75A5A"
+                                                        Foreground="White"
+                                                        BorderBrush="#B24E4E"
+                                                        BorderThickness="1"
+                                                        CornerRadius="4"
+                                                        HorizontalAlignment="Right"
+                                                        ToolTip.Tip="{x:Static res:Resources.DeleteModel}">
+                                                    <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                             Width="16"
+                                                             Height="16"/>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>

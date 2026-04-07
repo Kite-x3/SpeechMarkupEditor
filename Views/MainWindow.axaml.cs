@@ -71,5 +71,19 @@ public partial class MainWindow : Window
         window.DataContext = _serviceProvider.GetRequiredService<ModelSettingsViewModel>();
         await window.ShowDialog(this);
     }
-}
 
+    private async void OpenHistoryMenuItem_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var window = _serviceProvider.GetRequiredService<MarkupHistoryWindow>();
+        var viewModel = _serviceProvider.GetRequiredService<MarkupHistoryViewModel>();
+        await viewModel.InitializeAsync();
+        window.DataContext = viewModel;
+
+        var selectedEntry = await window.ShowDialog<MarkupHistoryEntrySummary?>(this);
+        if (selectedEntry == null)
+            return;
+
+        if (DataContext is MainWindowViewModel mainWindowViewModel)
+            await mainWindowViewModel.LoadMarkupHistoryAsync(selectedEntry.Id);
+    }
+}

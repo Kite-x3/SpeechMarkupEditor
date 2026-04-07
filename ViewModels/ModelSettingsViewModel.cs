@@ -76,6 +76,25 @@ public partial class ModelSettingsViewModel : ObservableObject
         Reload();
     }
 
+    [RelayCommand]
+    private async Task DeleteModel(RecognitionModelDefinition? model)
+    {
+        if (model == null)
+            return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            Resources.Warning,
+            string.Format(Resources.DeleteModelConfirmationFormat, model.Name),
+            Resources.Delete,
+            Resources.Cancel);
+
+        if (!confirmed)
+            return;
+
+        await _recognitionModelService.DeleteModelAsync(model.Path);
+        Reload();
+    }
+
     private void Reload()
     {
         Models = new ObservableCollection<RecognitionModelDefinition>(

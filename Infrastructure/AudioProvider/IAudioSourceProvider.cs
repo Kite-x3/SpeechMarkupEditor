@@ -8,5 +8,6 @@ namespace SpeechMarkupEditor.Infrastructure.Audio;
 public interface IAudioSourceProvider
 {
     string DisplayName { get; }
+    string? SourcePath { get; }
     Task<Stream> OpenAudioStreamAsync();
 }

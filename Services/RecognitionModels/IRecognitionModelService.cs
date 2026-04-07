@@ -12,4 +12,5 @@ public interface IRecognitionModelService
     RecognitionModelDefinition? GetCurrentModel();
     Task AddModelAsync(string name, string path);
     Task SetCurrentModelAsync(string path);
+    Task DeleteModelAsync(string path);
 }

@@ -10,4 +10,5 @@ public class RecognitionModelDefinition
     public string Engine { get; set; } = Resources.VoskEngineName;
     public string Path { get; set; } = string.Empty;
     public bool IsCurrent { get; set; }
+    public bool IsDeletable { get; set; } = true;
 }

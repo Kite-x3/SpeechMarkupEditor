@@ -44,6 +44,7 @@ public class ImportFromJsonService : IImportService
                 FileName = string.IsNullOrWhiteSpace(imported.FileName)
                     ? Path.GetFileNameWithoutExtension(filePath)
                     : imported.FileName,
+                SourcePath = filePath,
                 LeftChannel = MapSeries(imported.LeftChannel),
                 RightChannel = MapSeries(imported.RightChannel)
             };

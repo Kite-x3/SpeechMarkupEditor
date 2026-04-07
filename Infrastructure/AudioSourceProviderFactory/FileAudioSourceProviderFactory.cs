@@ -1,6 +1,7 @@
-﻿// Copyright (C) Neurosoft
+﻿﻿// Copyright (C) Neurosoft
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using SpeechMarkupEditor.Assets;
@@ -21,7 +22,7 @@ public class FileAudioSourceProviderFactory : IAudioSourceProviderFactory
     /// Создает источник аудио через диалог выбора файла
     /// </summary>
     /// <returns>Провайдер аудио-источника или null, если файл не выбран</returns>
-    public async Task<IAudioSourceProvider> CreateSourceAsync()
+    public async Task<IAudioSourceProvider?> CreateSourceAsync()
     {
         try
         {
@@ -51,5 +52,13 @@ public class FileAudioSourceProviderFactory : IAudioSourceProviderFactory
             Console.WriteLine($"Error creating audio source: {ex.Message}");
             throw;
         }
+    }
+
+    public IAudioSourceProvider? CreateSourceFromPath(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            return null;
+
+        return new FileAudioSourceProvider(filePath);
     }
 }

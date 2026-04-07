@@ -243,4 +243,52 @@
     <data name="RussianLanguageCode" xml:space="preserve">
         <value>ru</value>
     </data>
+    <data name="DeleteModel" xml:space="preserve">
+        <value>Удалить модель</value>
+    </data>
+    <data name="DeleteModelConfirmationFormat" xml:space="preserve">
+        <value>Удалить модель '{0}'?</value>
+    </data>
+    <data name="OpenHistory" xml:space="preserve">
+        <value>Открыть историю</value>
+    </data>
+    <data name="SaveToHistory" xml:space="preserve">
+        <value>Сохранить в историю</value>
+    </data>
+    <data name="MarkupHistoryTitle" xml:space="preserve">
+        <value>История разметок</value>
+    </data>
+    <data name="MarkupHistoryHint" xml:space="preserve">
+        <value>Здесь хранятся сохраненные снимки разметки из базы данных.</value>
+    </data>
+    <data name="Refresh" xml:space="preserve">
+        <value>Обновить</value>
+    </data>
+    <data name="Source" xml:space="preserve">
+        <value>Источник</value>
+    </data>
+    <data name="CreatedAt" xml:space="preserve">
+        <value>Создано</value>
+    </data>
+    <data name="Open" xml:space="preserve">
+        <value>Открыть</value>
+    </data>
+    <data name="NothingToSaveToHistory" xml:space="preserve">
+        <value>Нет разметки для сохранения в историю.</value>
+    </data>
+    <data name="MarkupSavedToHistory" xml:space="preserve">
+        <value>Разметка сохранена в историю.</value>
+    </data>
+    <data name="HistoryEntryNotFound" xml:space="preserve">
+        <value>Выбранная запись истории не найдена.</value>
+    </data>
+    <data name="DeleteHistoryEntryConfirmationFormat" xml:space="preserve">
+        <value>Удалить запись истории '{0}'?</value>
+    </data>
+    <data name="ClearHistory" xml:space="preserve">
+        <value>Очистить историю</value>
+    </data>
+    <data name="ClearHistoryConfirmation" xml:space="preserve">
+        <value>Очистить всю историю разметок?</value>
+    </data>
 </root>

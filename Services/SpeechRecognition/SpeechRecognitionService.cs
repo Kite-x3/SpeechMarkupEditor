@@ -178,6 +178,9 @@ public class SpeechRecognitionService: ISpeechRecognitionService
         if (recRight!=null)
             rightWords.AddRange(ExtractWords(recRight.FinalResult()));
 
+        if (channels == 1)
+            rightWords.AddRange(leftWords);
+
         var leftSeries = _wordSeriesService.GroupWordsIntoSeries(leftWords);
         var rightSeries = _wordSeriesService.GroupWordsIntoSeries(rightWords);
 

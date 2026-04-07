@@ -8,6 +8,7 @@ namespace SpeechMarkupEditor.Services.ImportService;
 public class ImportedMarkup
 {
     public string FileName { get; set; } = string.Empty;
+    public string? SourcePath { get; set; }
     public ObservableCollection<Series> LeftChannel { get; set; } = [];
     public ObservableCollection<Series> RightChannel { get; set; } = [];
 }

@@ -510,5 +510,101 @@ namespace SpeechMarkupEditor.Assets {
                 return ResourceManager.GetString("RussianLanguageCode", resourceCulture);
             }
         }
+
+        public static string DeleteModel {
+            get {
+                return ResourceManager.GetString("DeleteModel", resourceCulture);
+            }
+        }
+
+        public static string DeleteModelConfirmationFormat {
+            get {
+                return ResourceManager.GetString("DeleteModelConfirmationFormat", resourceCulture);
+            }
+        }
+
+        public static string OpenHistory {
+            get {
+                return ResourceManager.GetString("OpenHistory", resourceCulture);
+            }
+        }
+
+        public static string SaveToHistory {
+            get {
+                return ResourceManager.GetString("SaveToHistory", resourceCulture);
+            }
+        }
+
+        public static string MarkupHistoryTitle {
+            get {
+                return ResourceManager.GetString("MarkupHistoryTitle", resourceCulture);
+            }
+        }
+
+        public static string MarkupHistoryHint {
+            get {
+                return ResourceManager.GetString("MarkupHistoryHint", resourceCulture);
+            }
+        }
+
+        public static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
+            }
+        }
+
+        public static string Source {
+            get {
+                return ResourceManager.GetString("Source", resourceCulture);
+            }
+        }
+
+        public static string CreatedAt {
+            get {
+                return ResourceManager.GetString("CreatedAt", resourceCulture);
+            }
+        }
+
+        public static string Open {
+            get {
+                return ResourceManager.GetString("Open", resourceCulture);
+            }
+        }
+
+        public static string NothingToSaveToHistory {
+            get {
+                return ResourceManager.GetString("NothingToSaveToHistory", resourceCulture);
+            }
+        }
+
+        public static string MarkupSavedToHistory {
+            get {
+                return ResourceManager.GetString("MarkupSavedToHistory", resourceCulture);
+            }
+        }
+
+        public static string HistoryEntryNotFound {
+            get {
+                return ResourceManager.GetString("HistoryEntryNotFound", resourceCulture);
+            }
+        }
+
+        public static string DeleteHistoryEntryConfirmationFormat {
+            get {
+                return ResourceManager.GetString("DeleteHistoryEntryConfirmationFormat", resourceCulture);
+            }
+        }
+
+        public static string ClearHistory {
+            get {
+                return ResourceManager.GetString("ClearHistory", resourceCulture);
+            }
+        }
+
+        public static string ClearHistoryConfirmation {
+            get {
+                return ResourceManager.GetString("ClearHistoryConfirmation", resourceCulture);
+            }
+        }
     }
 }

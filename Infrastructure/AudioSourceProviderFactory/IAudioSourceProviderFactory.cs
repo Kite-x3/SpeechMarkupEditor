@@ -1,4 +1,4 @@
-﻿// Copyright (C) Neurosoft
+﻿﻿// Copyright (C) Neurosoft
 
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -9,4 +9,5 @@ namespace SpeechMarkupEditor.Infrastructure.AudioSourceProviderFactory;
 public interface IAudioSourceProviderFactory
 {
     Task<IAudioSourceProvider?> CreateSourceAsync();
+    IAudioSourceProvider? CreateSourceFromPath(string filePath);
 }

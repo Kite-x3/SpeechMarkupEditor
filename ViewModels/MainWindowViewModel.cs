@@ -1,4 +1,4 @@
-﻿﻿// Copyright (C) Neurosoft
+﻿﻿﻿// Copyright (C) Neurosoft
 
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,7 @@ using SpeechMarkupEditor.Services.AudioVisualization;
 using SpeechMarkupEditor.Services.Dialog;
 using SpeechMarkupEditor.Services.ExportService;
 using SpeechMarkupEditor.Services.ImportService;
+using SpeechMarkupEditor.Services.MarkupHistory;
 using SpeechMarkupEditor.Services.NewWordMarkerDialog;
 using SpeechMarkupEditor.Services.SpeechRecognition;
 using SpeechMarkupEditor.Services.WordSeries;
@@ -34,6 +35,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IWordSeriesService _wordSeriesService;
     private readonly IExportService _exportService;
     private readonly IImportService _importService;
+    private readonly IMarkupHistoryService _markupHistoryService;
     private IAudioService? _audioService;
     private IAudioSourceProvider? _currentAudioSource;
     private string _fullFilePath = string.Empty;
@@ -129,7 +131,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(IDialogService dialogService, IAudioSourceProviderFactory sourceProviderFactory,
         IServiceProvider serviceProvider, IAudioVisualizationService visualizationService, IWordMarkerDialogService wordMarkerDialogService,
         ISpeechRecognitionService speechRecognitionService, IWordSeriesService wordSeriesService, IExportService exportService,
-        IImportService importService)
+        IImportService importService, IMarkupHistoryService markupHistoryService)
     {
         _dialogService = dialogService;
         _sourceProviderFactory = sourceProviderFactory;
@@ -142,6 +144,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _rightSeries = new ObservableCollection<Series>();
         _exportService = exportService;
         _importService = importService;
+        _markupHistoryService = markupHistoryService;
     }
 
     /// <summary>
@@ -188,9 +191,9 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>
     /// Обработчик изменения громкости
     /// </summary>
-    partial void OnVolumeChanged(double volume)
+    partial void OnVolumeChanged(double value)
     {
-        _audioService?.SetVolume(volume);
+        _audioService?.SetVolume(value);
     }
 
     public void OnWaveformUpdated(object? sender, WaveformEventArgs waveformEventArgs)
@@ -212,6 +215,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             _recognitionCts?.Cancel();
             _currentAudioSource = source;
+            _fullFilePath = source.SourcePath ?? string.Empty;
 
             await InitializeAudioService(source);
             SelectedFileName = source.DisplayName;
@@ -278,33 +282,8 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         _recognitionCts?.Cancel();
-        _currentAudioSource = null;
-        CleanupAudioService();
-
-        LeftSeries.Clear();
-        RightSeries.Clear();
-
-        foreach (var series in importedMarkup.LeftChannel)
-        {
-            LeftSeries.Add(series);
-        }
-
-        foreach (var series in importedMarkup.RightChannel)
-        {
-            RightSeries.Add(series);
-        }
-
-        UpdateRecognitionPresentationMode();
-
-        SelectedFileName = importedMarkup.FileName;
-        IsFileSelected = true;
-        HasAudioLoaded = false;
-        CurrentTimeSeconds = 0;
-        TotalTimeSeconds = 0;
-        IsPlaying = false;
-        IsStereoAudio = false;
-        IsLeftChannelActive = true;
-        IsRightChannelActive = true;
+        ApplyImportedMarkup(importedMarkup);
+        await SaveCurrentMarkupToHistoryInternalAsync();
     }
 
     [RelayCommand]
@@ -375,6 +354,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries);
             _wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries);
             UpdateRecognitionPresentationMode();
+            await SaveCurrentMarkupToHistoryInternalAsync();
         }
         catch (OperationCanceledException)
         {
@@ -414,7 +394,10 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var marker = await _wordMarkerDialogService.ShowAddWordMarkerDialog(position);
         if (marker != null)
+        {
             AddWordToCollection(marker);
+            await SaveCurrentMarkupToHistoryInternalAsync();
+        }
     }
 
     /// <summary>
@@ -458,6 +441,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _wordSeriesService.RemoveWordFromSeries(LeftSeries, word);
         UpdateRecognitionPresentationMode();
+        await SaveCurrentMarkupToHistoryInternalAsync();
     }
 
     [RelayCommand]
@@ -474,12 +458,94 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _wordSeriesService.RemoveWordFromSeries(RightSeries, word);
         UpdateRecognitionPresentationMode();
+        await SaveCurrentMarkupToHistoryInternalAsync();
+    }
+
+    [RelayCommand]
+    private async Task SaveMarkupToHistory()
+    {
+        if (LeftSeries.Count == 0 && RightSeries.Count == 0)
+        {
+            await _dialogService.ShowWarningAsync(Resources.NothingToSaveToHistory);
+            return;
+        }
+
+        await SaveCurrentMarkupToHistoryInternalAsync(showSuccessMessage: true);
+    }
+
+    public async Task LoadMarkupHistoryAsync(long id)
+    {
+        var importedMarkup = await _markupHistoryService.LoadAsync(id);
+        if (importedMarkup == null)
+        {
+            await _dialogService.ShowWarningAsync(Resources.HistoryEntryNotFound);
+            return;
+        }
+
+        _recognitionCts?.Cancel();
+        ApplyImportedMarkup(importedMarkup);
+
+        var source = _sourceProviderFactory.CreateSourceFromPath(importedMarkup.SourcePath ?? string.Empty);
+        if (source == null)
+            return;
+
+        _currentAudioSource = source;
+        _fullFilePath = source.SourcePath ?? string.Empty;
+
+        await InitializeAudioService(source);
+        SelectedFileName = source.DisplayName;
+        IsFileSelected = true;
+        HasAudioLoaded = true;
+        await _visualizationService.UpdateVisualizationAsync(source);
     }
 
     private void UpdateRecognitionPresentationMode()
     {
         IsNonDichoticRecognition = AreSeriesCollectionsEqual(LeftSeries, RightSeries);
         LeftSeriesColumnSpan = IsNonDichoticRecognition ? 2 : 1;
+    }
+
+    private void ApplyImportedMarkup(ImportedMarkup importedMarkup)
+    {
+        _currentAudioSource = null;
+        CleanupAudioService();
+
+        LeftSeries.Clear();
+        RightSeries.Clear();
+
+        foreach (var series in importedMarkup.LeftChannel)
+        {
+            LeftSeries.Add(series);
+        }
+
+        foreach (var series in importedMarkup.RightChannel)
+        {
+            RightSeries.Add(series);
+        }
+
+        UpdateRecognitionPresentationMode();
+
+        SelectedFileName = importedMarkup.FileName;
+        _fullFilePath = importedMarkup.SourcePath ?? string.Empty;
+        IsFileSelected = true;
+        HasAudioLoaded = false;
+        CurrentTimeSeconds = 0;
+        TotalTimeSeconds = 0;
+        IsPlaying = false;
+        IsStereoAudio = false;
+        IsLeftChannelActive = true;
+        IsRightChannelActive = true;
+    }
+
+    private async Task SaveCurrentMarkupToHistoryInternalAsync(bool showSuccessMessage = false)
+    {
+        if (LeftSeries.Count == 0 && RightSeries.Count == 0)
+            return;
+
+        await _markupHistoryService.SaveAsync(SelectedFileName, LeftSeries, RightSeries, _fullFilePath);
+
+        if (showSuccessMessage)
+            await _dialogService.ShowSuccessAsync(Resources.MarkupSavedToHistory);
     }
 
     private static bool AreSeriesCollectionsEqual(IReadOnlyList<Series> left, IReadOnlyList<Series> right)

@@ -13,9 +13,11 @@ public class FileAudioSourceProvider: IAudioSourceProvider
     {
         _filePath = filePath;
         DisplayName = Path.GetFileName(filePath);
+        SourcePath = filePath;
     }
 
     public string DisplayName { get; }
+    public string? SourcePath { get; }
 
     /// <summary>
     /// Открывает поток для чтения аудиофайла
