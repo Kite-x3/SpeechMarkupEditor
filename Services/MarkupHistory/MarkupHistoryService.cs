@@ -29,22 +29,40 @@ public class MarkupHistoryService : IMarkupHistoryService
 
     public async Task SaveAsync(string fileName, IReadOnlyList<Series> leftSeries, IReadOnlyList<Series> rightSeries, string? sourcePath = null)
     {
+        var normalizedFileName = string.IsNullOrWhiteSpace(fileName) ? "markup" : fileName;
+        var normalizedSourcePath = NormalizeSourcePath(sourcePath);
         var snapshot = new MarkupSnapshot
         {
-            FileName = fileName,
-            SourcePath = sourcePath,
+            FileName = normalizedFileName,
+            SourcePath = normalizedSourcePath,
             LeftChannel = MapSeries(leftSeries),
             RightChannel = MapSeries(rightSeries)
         };
 
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-        dbContext.MarkupHistoryEntries.Add(new MarkupHistoryEntryEntity
+        var existingEntries = await FindMatchingEntriesAsync(dbContext, normalizedFileName, normalizedSourcePath);
+        var existingEntry = existingEntries.FirstOrDefault();
+
+        if (existingEntry == null)
         {
-            FileName = string.IsNullOrWhiteSpace(fileName) ? "markup" : fileName,
-            SourcePath = sourcePath,
-            CreatedAtUtc = DateTimeOffset.Now,
-            PayloadJson = JsonSerializer.Serialize(snapshot, JsonOptions)
-        });
+            dbContext.MarkupHistoryEntries.Add(new MarkupHistoryEntryEntity
+            {
+                FileName = normalizedFileName,
+                SourcePath = normalizedSourcePath,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+                PayloadJson = JsonSerializer.Serialize(snapshot, JsonOptions)
+            });
+        }
+        else
+        {
+            existingEntry.FileName = normalizedFileName;
+            existingEntry.SourcePath = normalizedSourcePath;
+            existingEntry.CreatedAtUtc = DateTimeOffset.UtcNow;
+            existingEntry.PayloadJson = JsonSerializer.Serialize(snapshot, JsonOptions);
+
+            if (existingEntries.Count > 1)
+                dbContext.MarkupHistoryEntries.RemoveRange(existingEntries.Skip(1));
+        }
 
         await dbContext.SaveChangesAsync();
     }
@@ -145,6 +163,28 @@ public class MarkupHistoryService : IMarkupHistoryService
         }
 
         return result;
+    }
+
+    private static string? NormalizeSourcePath(string? sourcePath)
+    {
+        return string.IsNullOrWhiteSpace(sourcePath) ? null : sourcePath.Trim();
+    }
+
+    private static async Task<List<MarkupHistoryEntryEntity>> FindMatchingEntriesAsync(
+        AppDbContext dbContext,
+        string fileName,
+        string? sourcePath)
+    {
+        var entries = await dbContext.MarkupHistoryEntries
+            .Where(entry =>
+                (sourcePath != null && entry.SourcePath == sourcePath)
+                || (sourcePath == null && entry.SourcePath == null && entry.FileName == fileName))
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+        return entries
+            .OrderByDescending(entry => entry.CreatedAtUtc)
+            .ToList();
     }
 
     private sealed class MarkupSnapshot

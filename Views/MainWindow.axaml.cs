@@ -86,4 +86,10 @@ public partial class MainWindow : Window
         if (DataContext is MainWindowViewModel mainWindowViewModel)
             await mainWindowViewModel.LoadMarkupHistoryAsync(selectedEntry.Id);
     }
+
+    private async void WordEditor_OnLostFocus(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel mainWindowViewModel)
+            await mainWindowViewModel.SaveInlineMarkupEditAsync();
+    }
 }

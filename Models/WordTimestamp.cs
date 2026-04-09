@@ -8,7 +8,7 @@ namespace SpeechMarkupEditor.Models;
 /// <summary>
 /// Временная метка слова в аудиозаписи с валидацией временных интервалов
 /// </summary>
-public struct WordTimestamp : IComparable<WordTimestamp>
+public class WordTimestamp : IComparable<WordTimestamp>
 {
     private const double TOLERANCE = 0.01;
     private double _startTime;

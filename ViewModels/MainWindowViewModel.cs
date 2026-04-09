@@ -210,31 +210,33 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task SelectWavFile()
     {
+        IAudioSourceProvider? source;
+
         try
         {
-            var source = await _sourceProviderFactory.CreateSourceAsync();
-            if (source == null)
-                return;
-
-            _recognitionCts?.Cancel();
-            _currentAudioSource = source;
-            _fullFilePath = source.SourcePath ?? string.Empty;
-
-            await InitializeAudioService(source);
-            SelectedFileName = source.DisplayName;
-            IsFileSelected = true;
-            HasAudioLoaded = true;
-            await _visualizationService.UpdateVisualizationAsync(source);
-            await RunRecognitionAsync(source);
+            source = await _sourceProviderFactory.CreateSourceAsync();
         }
-
         catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync(Resources.FileChoosingError);
-
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.WriteLine($"Error: {ex.Message}");
+            return;
         }
+
+        if (source == null)
+            return;
+
+        _recognitionCts?.Cancel();
+        _currentAudioSource = source;
+        _fullFilePath = source.SourcePath ?? string.Empty;
+
+        await InitializeAudioService(source);
+        SelectedFileName = source.DisplayName;
+        IsFileSelected = true;
+        HasAudioLoaded = true;
+        await _visualizationService.UpdateVisualizationAsync(source);
+        await RunRecognitionAsync(source);
     }
 
     /// <summary>
@@ -362,6 +364,12 @@ public partial class MainWindowViewModel : ViewModelBase
         catch (OperationCanceledException)
         {
             // Cancellation is expected and confirmed by user.
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorAsync($"{Resources.Error}: {ex.Message}");
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.WriteLine($"Error: {ex.Message}");
         }
         finally
         {
@@ -549,6 +557,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (showSuccessMessage)
             await _dialogService.ShowSuccessAsync(Resources.MarkupSavedToHistory);
+    }
+
+    public Task SaveInlineMarkupEditAsync()
+    {
+        return SaveCurrentMarkupToHistoryInternalAsync();
     }
 
     private static bool AreSeriesCollectionsEqual(IReadOnlyList<Series> left, IReadOnlyList<Series> right)

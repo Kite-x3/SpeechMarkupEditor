@@ -260,11 +260,11 @@ public class SpeechRecognitionService: ISpeechRecognitionService
         foreach (var word in words.AsArray())
         {
             result.Add(new WordTimestamp
-            {
-                Word = word["word"]?.ToString(),
-                EndTime = (double)word["end"],
-                StartTime = (double)word["start"]
-            });
+            (
+                word["word"]?.ToString(),
+                (double)word["start"],
+                (double)word["end"]
+            ));
         }
 
         return result;
