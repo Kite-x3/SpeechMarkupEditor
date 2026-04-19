@@ -8,7 +8,7 @@ namespace SpeechMarkupEditor.Services.WordSeries;
 
 public interface IWordSeriesService
 {
-    void MergeRecognitionResult(
+    RecognitionMergeResult MergeRecognitionResult(
         ObservableCollection<Series> targetSeries,
         List<Series> newSeriesData);
 

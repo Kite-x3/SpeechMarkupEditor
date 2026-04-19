@@ -8,4 +8,5 @@ public class MarkupHistoryEntrySummary
     public string FileName { get; set; } = string.Empty;
     public string? SourcePath { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset CreatedAtLocal => CreatedAtUtc.ToLocalTime();
 }

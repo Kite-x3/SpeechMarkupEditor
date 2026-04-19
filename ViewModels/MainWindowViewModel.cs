@@ -230,6 +230,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _recognitionCts?.Cancel();
         _currentAudioSource = source;
         _fullFilePath = source.SourcePath ?? string.Empty;
+        LeftSeries.Clear();
+        RightSeries.Clear();
+        UpdateRecognitionPresentationMode();
 
         await InitializeAudioService(source);
         SelectedFileName = source.DisplayName;
@@ -344,8 +347,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _recognitionCts = new CancellationTokenSource();
 
         var cancellationToken = _recognitionCts.Token;
-        LeftSeries.Clear();
-        RightSeries.Clear();
         IsProcessingAudio = true;
 
         try
@@ -356,10 +357,21 @@ public partial class MainWindowViewModel : ViewModelBase
             if (cancellationToken.IsCancellationRequested)
                 return;
 
-            _wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries);
-            _wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries);
+            var mergeResult = new RecognitionMergeResult();
+            mergeResult.Accumulate(_wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries));
+            mergeResult.Accumulate(_wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries));
             UpdateRecognitionPresentationMode();
-            await SaveCurrentMarkupToHistoryInternalAsync();
+
+            if (mergeResult.HasAddedWords)
+                await SaveCurrentMarkupToHistoryInternalAsync();
+
+            if (mergeResult.HasOverlaps)
+            {
+                var warningMessage = mergeResult.HasAddedWords
+                    ? Resources.RecognitionOverlapsPartialAdded
+                    : Resources.RecognitionOverlapsNothingAdded;
+                await _dialogService.ShowWarningAsync(warningMessage);
+            }
         }
         catch (OperationCanceledException)
         {

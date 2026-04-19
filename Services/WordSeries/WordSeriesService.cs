@@ -69,12 +69,16 @@ public class WordSeriesService : IWordSeriesService
     /// </summary>
     /// <param name="targetSeries">Изначальный список серий</param>
     /// <param name="newSeries">Список распознанных серий</param>
-    public void MergeRecognitionResult(ObservableCollection<Series> targetSeries, List<Series> newSeries)
+    public RecognitionMergeResult MergeRecognitionResult(ObservableCollection<Series> targetSeries, List<Series> newSeries)
     {
+        var result = new RecognitionMergeResult();
+
         foreach (var newSeriesItem in newSeries.Where(ns => ns.Words.Count > 0))
         {
-            ProcessSeriesWithOverlaps(targetSeries, newSeriesItem);
+            result.Accumulate(ProcessSeriesWithOverlaps(targetSeries, newSeriesItem, false));
         }
+
+        return result;
     }
 
     /// <summary>
@@ -86,7 +90,7 @@ public class WordSeriesService : IWordSeriesService
     {
         var tempSeries = new Series();
         tempSeries.AddWord(word);
-        ProcessSeriesWithOverlaps(series, tempSeries);
+        ProcessSeriesWithOverlaps(series, tempSeries, true);
     }
 
     public void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word)
@@ -110,26 +114,29 @@ public class WordSeriesService : IWordSeriesService
     /// </summary>
     /// <param name="target">Серия, в которую добавляют</param>
     /// <param name="newSeries">Серия, которую добавляют</param>
-    private void ProcessSeriesWithOverlaps(ObservableCollection<Series> target, Series newSeries)
+    private RecognitionMergeResult ProcessSeriesWithOverlaps(ObservableCollection<Series> target, Series newSeries, bool showOverlapDetails)
     {
+        var result = new RecognitionMergeResult();
         var overlappingWords = FindOverlappingWords(target, newSeries);
 
         if (overlappingWords.Count != 0)
         {
-            var errorBuilder = new StringBuilder();
-            errorBuilder.AppendLine($"{Resources.OverlapsWithWords}:");
-
-            foreach (var word in overlappingWords)
+            if (showOverlapDetails)
             {
-                errorBuilder.AppendLine(
-                    $"- '{word.Word}' (" +
-                    $"{_timeConverter.Convert(word.StartTime, typeof(string), null, CultureInfo.InvariantCulture)}-" +
-                    $"{_timeConverter.Convert(word.EndTime, typeof(string), null, CultureInfo.InvariantCulture)})");
+                var errorBuilder = new StringBuilder();
+                errorBuilder.AppendLine($"{Resources.OverlapsWithWords}:");
+
+                foreach (var word in overlappingWords)
+                {
+                    errorBuilder.AppendLine(
+                        $"- '{word.Word}' (" +
+                        $"{_timeConverter.Convert(word.StartTime, typeof(string), null, CultureInfo.InvariantCulture)}-" +
+                        $"{_timeConverter.Convert(word.EndTime, typeof(string), null, CultureInfo.InvariantCulture)})");
+                }
+
+                string errorMessage = errorBuilder.ToString();
+                _dialogService.ShowWarningAsync(errorMessage);
             }
-
-            string errorMessage = errorBuilder.ToString();
-
-            _dialogService.ShowWarningAsync(errorMessage);
 
             var filteredWords = new List<WordTimestamp>();
             foreach (var nw in newSeries.Words)
@@ -141,6 +148,7 @@ public class WordSeriesService : IWordSeriesService
                 }
             }
 
+            result.OverlappingWordsCount = newSeries.Words.Count - filteredWords.Count;
             newSeries.Words.Clear();
             foreach (var word in filteredWords)
             {
@@ -148,10 +156,12 @@ public class WordSeriesService : IWordSeriesService
             }
 
             if (newSeries.Words.Count == 0)
-                return;
+                return result;
         }
 
+        result.AddedWordsCount = newSeries.Words.Count;
         AddNonOverlappingSeries(target, newSeries);
+        return result;
     }
 
     /// <summary>

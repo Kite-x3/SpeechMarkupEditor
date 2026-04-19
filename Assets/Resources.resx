@@ -99,6 +99,12 @@
     <data name="OverlapsWithWords" xml:space="preserve">
         <value>Обнаружены пересечения со словами</value>
     </data>
+    <data name="RecognitionOverlapsPartialAdded" xml:space="preserve">
+        <value>Найдены пересечения, добавлена только часть слов.</value>
+    </data>
+    <data name="RecognitionOverlapsNothingAdded" xml:space="preserve">
+        <value>Найдены пересечения, новые слова не добавлены.</value>
+    </data>
     <data name="SpeechModelNotFound" xml:space="preserve">
         <value>Модель распознавания речи не найдена, распознавание невозможно. Проверьте наличие папки в</value>
     </data>

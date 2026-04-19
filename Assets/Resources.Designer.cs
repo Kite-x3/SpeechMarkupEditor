@@ -223,6 +223,18 @@ namespace SpeechMarkupEditor.Assets {
             }
         }
 
+        public static string RecognitionOverlapsPartialAdded {
+            get {
+                return ResourceManager.GetString("RecognitionOverlapsPartialAdded", resourceCulture);
+            }
+        }
+
+        public static string RecognitionOverlapsNothingAdded {
+            get {
+                return ResourceManager.GetString("RecognitionOverlapsNothingAdded", resourceCulture);
+            }
+        }
+
         public static string SpeechModelNotFound {
             get {
                 return ResourceManager.GetString("SpeechModelNotFound", resourceCulture);
