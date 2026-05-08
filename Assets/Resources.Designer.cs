@@ -211,6 +211,24 @@ namespace SpeechMarkupEditor.Assets {
                 return ResourceManager.GetString("SearchSeries", resourceCulture);
             }
         }
+
+        public static string Series {
+            get {
+                return ResourceManager.GetString("Series", resourceCulture);
+            }
+        }
+
+        public static string ToggleOn {
+            get {
+                return ResourceManager.GetString("ToggleOn", resourceCulture);
+            }
+        }
+
+        public static string ToggleOff {
+            get {
+                return ResourceManager.GetString("ToggleOff", resourceCulture);
+            }
+        }
         public static string TimeWatermark {
             get {
                 return ResourceManager.GetString("TimeWatermark", resourceCulture);
@@ -292,6 +310,12 @@ namespace SpeechMarkupEditor.Assets {
         public static string ExportDialogTitle {
             get {
                 return ResourceManager.GetString("ExportDialogTitle", resourceCulture);
+            }
+        }
+
+        public static string DefaultSuggestedFileName {
+            get {
+                return ResourceManager.GetString("DefaultSuggestedFileName", resourceCulture);
             }
         }
 
@@ -559,6 +583,42 @@ namespace SpeechMarkupEditor.Assets {
             }
         }
 
+        public static string CurrentAudioFile {
+            get {
+                return ResourceManager.GetString("CurrentAudioFile", resourceCulture);
+            }
+        }
+
+        public static string SelectAudioFilePathTooltip {
+            get {
+                return ResourceManager.GetString("SelectAudioFilePathTooltip", resourceCulture);
+            }
+        }
+
+        public static string RecognitionCompleted {
+            get {
+                return ResourceManager.GetString("RecognitionCompleted", resourceCulture);
+            }
+        }
+
+        public static string RestartRecognitionTooltip {
+            get {
+                return ResourceManager.GetString("RestartRecognitionTooltip", resourceCulture);
+            }
+        }
+
+        public static string RebuildSeriesTooltip {
+            get {
+                return ResourceManager.GetString("RebuildSeriesTooltip", resourceCulture);
+            }
+        }
+
+        public static string RebuildSeriesImpossibleDueToOverlaps {
+            get {
+                return ResourceManager.GetString("RebuildSeriesImpossibleDueToOverlaps", resourceCulture);
+            }
+        }
+
         public static string Refresh {
             get {
                 return ResourceManager.GetString("Refresh", resourceCulture);
@@ -592,6 +652,36 @@ namespace SpeechMarkupEditor.Assets {
         public static string MarkupSavedToHistory {
             get {
                 return ResourceManager.GetString("MarkupSavedToHistory", resourceCulture);
+            }
+        }
+
+        public static string SaveDespiteOverlaps {
+            get {
+                return ResourceManager.GetString("SaveDespiteOverlaps", resourceCulture);
+            }
+        }
+
+        public static string RebuildSeriesBeforeSaveFailed {
+            get {
+                return ResourceManager.GetString("RebuildSeriesBeforeSaveFailed", resourceCulture);
+            }
+        }
+
+        public static string SaveAnywayQuestion {
+            get {
+                return ResourceManager.GetString("SaveAnywayQuestion", resourceCulture);
+            }
+        }
+
+        public static string LeftChannelLabel {
+            get {
+                return ResourceManager.GetString("LeftChannelLabel", resourceCulture);
+            }
+        }
+
+        public static string RightChannelLabel {
+            get {
+                return ResourceManager.GetString("RightChannelLabel", resourceCulture);
             }
         }
 

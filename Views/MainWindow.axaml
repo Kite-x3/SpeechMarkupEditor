@@ -1,4 +1,4 @@
-﻿<!-- Copyright (C) Neurosoft -->
+<!-- Copyright (C) Neurosoft -->
 
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -113,7 +113,7 @@
 
     <Grid RowDefinitions="Auto,Auto,*" Margin="15,10" RowSpacing="10">
         <Border Grid.Row="0" Classes="toolbar-panel">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <DropDownButton Classes="toolbar settings">
                         <DropDownButton.Content>
@@ -127,11 +127,11 @@
                                             Click="ModelSettingsMenuItem_OnClick"
                                             HorizontalAlignment="Stretch"/>
                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <TextBlock Text="Серии" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{x:Static res:Resources.Series}" VerticalAlignment="Center"/>
                                         <ToggleSwitch VerticalAlignment="Center"
                                                       IsChecked="{Binding ShowSeries, Mode=TwoWay}"
-                                                      OnContent="Вкл"
-                                                      OffContent="Выкл"/>
+                                                      OnContent="{x:Static res:Resources.ToggleOn}"
+                                                      OffContent="{x:Static res:Resources.ToggleOff}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Flyout>
@@ -234,26 +234,39 @@
                 <Border Grid.Column="1"
                         Classes="info-panel"
                         VerticalAlignment="Stretch">
-                    <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="Текущий аудиофайл"
-                                   FontSize="12"
-                                   Foreground="#666666"/>
-                        <TextBlock Text="{Binding SelectedFileName}"
-                                   FontWeight="SemiBold"
-                                   TextWrapping="Wrap"
-                                   MaxLines="2"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8">
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Static res:Resources.CurrentAudioFile}"
+                                       FontSize="12"
+                                       Foreground="#666666"/>
+                            <TextBlock Text="{Binding SelectedFileName}"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       MaxLines="2"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Classes="action"
+                                MinWidth="40"
+                                ToolTip.Tip="{x:Static res:Resources.SelectAudioFilePathTooltip}"
+                                Command="{Binding SelectMissingAudioFileCommand}">
+                            <svg:Svg Path="avares://SpeechMarkupEditor/Assets/audio-file.svg"
+                                     Width="20"
+                                     Height="20"/>
+                        </Button>
+                    </Grid>
                 </Border>
 
                 <Border Grid.Column="2"
                         Classes="info-panel"
                         Width="320"
                         VerticalAlignment="Stretch">
-                    <Grid RowDefinitions="Auto,Auto" RowSpacing="8" VerticalAlignment="Center">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Grid RowDefinitions="Auto,Auto, Auto" RowSpacing="8" VerticalAlignment="Center">
+                        <Grid ColumnDefinitions="*,Auto, Auto" ColumnSpacing="12">
                             <StackPanel Spacing="2" VerticalAlignment="Center">
-                                <TextBlock Text="Распознавание завершено"
+                                <TextBlock Text="{x:Static res:Resources.RecognitionCompleted}"
                                            FontSize="14"
                                            FontWeight="SemiBold"
                                            IsVisible="{Binding !IsProcessingAudio}"/>
@@ -269,10 +282,11 @@
                                     IsVisible="{Binding !IsProcessingAudio}"
                                     IsEnabled="{Binding HasAudioLoaded}"
                                     HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
+                                    VerticalAlignment="Center"
+                                    MinWidth="40">
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <svg:Svg Path="avares://SpeechMarkupEditor/Assets/circle-reeat.svg"
+                                        <svg:Svg Path="avares://SpeechMarkupEditor/Assets/circle-repeat.svg"
                                                  Width="14"
                                                  Height="14"/>
                                     </StackPanel>
@@ -285,7 +299,21 @@
                                     Command="{Binding CancelRecognitionCommand}"
                                     IsVisible="{Binding IsProcessingAudio}"
                                     HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"/>
+                                    VerticalAlignment="Center"
+                                    ToolTip.Tip="{x:Static res:Resources.RestartRecognitionTooltip}"/>
+
+                            <Button Grid.Column="2" Classes="action"
+                                    Command="{Binding RebuildSeriesCommand}"
+                                    IsEnabled="{Binding IsFileSelected}"
+                                    MinWidth="30"
+                                    ToolTip.Tip="{x:Static res:Resources.RebuildSeriesTooltip}">
+                                <Button.Content>
+                                    <svg:Svg
+                                        Path="avares://SpeechMarkupEditor/Assets/recalculate.svg"
+                                        Width="20"
+                                        Height="20"/>
+                                </Button.Content>
+                            </Button>
                         </Grid>
 
                         <ProgressBar Grid.Row="1"
@@ -385,8 +413,7 @@
                                                                            Text="{x:Static res:Resources.Word}"
                                                                            VerticalAlignment="Center"/>
                                                                 <TextBox Grid.Column="1"
-                                                                         Text="{Binding Word}"
-                                                                         LostFocus="WordEditor_OnLostFocus"
+                                                                         Text="{Binding Word, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                          VerticalAlignment="Center"
                                                                          FontWeight="Bold"/>
                                                             </Grid>
@@ -401,13 +428,13 @@
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{x:Static res:Resources.WordTiming}"
                                                                                VerticalAlignment="Center"/>
-                                                                    <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                                    <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}" IsStartEditor="True"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                                     <TextBlock Grid.Column="2"
                                                                                Text="{x:Static res:Resources.RangeSeparator}"
                                                                                VerticalAlignment="Center"/>
-                                                                    <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                                    <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}" IsStartEditor="False"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                                 </Grid>
                                                             </Border>
                                                             <Button Grid.Column="2"
@@ -445,8 +472,7 @@
                                                                    Text="{x:Static res:Resources.Word}"
                                                                    VerticalAlignment="Center"/>
                                                         <TextBox Grid.Column="1"
-                                                                 Text="{Binding Word}"
-                                                                         LostFocus="WordEditor_OnLostFocus"
+                                                                 Text="{Binding Word, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                  VerticalAlignment="Center"
                                                                  FontWeight="Bold"/>
                                                     </Grid>
@@ -461,13 +487,13 @@
                                                             <TextBlock Grid.Column="0"
                                                                        Text="{x:Static res:Resources.WordTiming}"
                                                                        VerticalAlignment="Center"/>
-                                                            <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                            <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}" IsStartEditor="True"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                             <TextBlock Grid.Column="2"
                                                                        Text="{x:Static res:Resources.RangeSeparator}"
                                                                        VerticalAlignment="Center"/>
-                                                            <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                            <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}" IsStartEditor="False"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                         </Grid>
                                                     </Border>
                                                     <Button Grid.Column="2"
@@ -519,8 +545,7 @@
                                                                                Text="{x:Static res:Resources.Word}"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBox Grid.Column="1"
-                                                                             Text="{Binding Word}"
-                                                                         LostFocus="WordEditor_OnLostFocus"
+                                                                             Text="{Binding Word, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                              VerticalAlignment="Center"
                                                                              FontWeight="Bold"/>
                                                                 </Grid>
@@ -535,13 +560,13 @@
                                                                         <TextBlock Grid.Column="0"
                                                                                    Text="{x:Static res:Resources.WordTiming}"
                                                                                    VerticalAlignment="Center"/>
-                                                                        <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                                        <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}" IsStartEditor="True"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                                         <TextBlock Grid.Column="2"
                                                                                    Text="{x:Static res:Resources.RangeSeparator}"
                                                                                    VerticalAlignment="Center"/>
-                                                                        <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                                        <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}" IsStartEditor="False"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                                     </Grid>
                                                                 </Border>
                                                                 <Button Grid.Column="2"
@@ -580,8 +605,7 @@
                                                                    Text="{x:Static res:Resources.Word}"
                                                                    VerticalAlignment="Center"/>
                                                         <TextBox Grid.Column="1"
-                                                                 Text="{Binding Word}"
-                                                                         LostFocus="WordEditor_OnLostFocus"
+                                                                 Text="{Binding Word, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                                  VerticalAlignment="Center"
                                                                  FontWeight="Bold"/>
                                                     </Grid>
@@ -596,13 +620,13 @@
                                                             <TextBlock Grid.Column="0"
                                                                        Text="{x:Static res:Resources.WordTiming}"
                                                                        VerticalAlignment="Center"/>
-                                                            <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                            <controls:TimeEditorControl Grid.Column="1" TimeValue="{Binding StartTime, Mode=TwoWay}" IsStartEditor="True"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                             <TextBlock Grid.Column="2"
                                                                        Text="{x:Static res:Resources.RangeSeparator}"
                                                                        VerticalAlignment="Center"/>
-                                                            <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}"
-                                                                                            LostFocus="WordEditor_OnLostFocus"/>
+                                                            <controls:TimeEditorControl Grid.Column="3" TimeValue="{Binding EndTime, Mode=TwoWay}" IsStartEditor="False"
+                                                                                            GotFocus="WordTimingEditor_OnGotFocus"/>
                                                         </Grid>
                                                     </Border>
                                                     <Button Grid.Column="2"

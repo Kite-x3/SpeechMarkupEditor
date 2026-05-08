@@ -14,5 +14,8 @@ public interface IWordSeriesService
 
     void AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word);
     void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word);
+    string? GetOverlapWarning(ObservableCollection<Series> series);
+    void RebuildSeriesCollection(ObservableCollection<Series> series);
     List<List<WordTimestamp>> GroupWordsIntoSeries(List<WordTimestamp> words);
+    List<Series> ConvertToSeriesList(List<List<WordTimestamp>> wordSeries);
 }

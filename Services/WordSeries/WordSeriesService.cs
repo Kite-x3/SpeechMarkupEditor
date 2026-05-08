@@ -64,6 +64,18 @@ public class WordSeriesService : IWordSeriesService
         return series;
     }
 
+    public List<Series> ConvertToSeriesList(List<List<WordTimestamp>> wordSeries)
+    {
+        return wordSeries.Select((seriesWords, index) =>
+        {
+            var series = new Series { SeriesNumber = index + 1 };
+            foreach (var word in seriesWords)
+                series.AddWord(word);
+
+            return series;
+        }).ToList();
+    }
+
     /// <summary>
     /// Объединяет результаты распознавания с существующими сериями
     /// </summary>
@@ -90,7 +102,9 @@ public class WordSeriesService : IWordSeriesService
     {
         var tempSeries = new Series();
         tempSeries.AddWord(word);
-        ProcessSeriesWithOverlaps(series, tempSeries, true);
+        var result = ProcessSeriesWithOverlaps(series, tempSeries, true);
+        if (result.AddedWordsCount > 0)
+            RebuildSeriesCollection(series);
     }
 
     public void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word)
@@ -104,9 +118,61 @@ public class WordSeriesService : IWordSeriesService
             if (item.Words.Count == 0)
                 series.Remove(item);
 
-            RenumberSeriesByTimeOrder(series);
+            RebuildSeriesCollection(series);
+
             return;
         }
+    }
+
+    public void RebuildSeriesCollection(ObservableCollection<Series> series)
+    {
+        var words = series
+            .SelectMany(item => item.Words)
+            .OrderBy(word => word.StartTime)
+            .ThenBy(word => word.Word, StringComparer.Ordinal)
+            .ToList();
+
+        RebuildSeries(series, words);
+    }
+
+    public string? GetOverlapWarning(ObservableCollection<Series> series)
+    {
+        var words = series
+            .SelectMany(item => item.Words)
+            .OrderBy(word => word.StartTime)
+            .ThenBy(word => word.Word, StringComparer.Ordinal)
+            .ToList();
+
+        if (words.Count < 2)
+            return null;
+
+        var overlaps = new List<(WordTimestamp Left, WordTimestamp Right)>();
+        for (var index = 1; index < words.Count; index++)
+        {
+            var previousWord = words[index - 1];
+            var currentWord = words[index];
+            if (WordsOverlap(previousWord, currentWord))
+                overlaps.Add((previousWord, currentWord));
+        }
+
+        if (overlaps.Count == 0)
+            return null;
+
+        var errorBuilder = new StringBuilder();
+        errorBuilder.AppendLine(Resources.RebuildSeriesImpossibleDueToOverlaps);
+
+        foreach (var overlap in overlaps)
+        {
+            errorBuilder.AppendLine(
+                $"- \"{overlap.Left.Word}\" (" +
+                $"{_timeConverter.Convert(overlap.Left.StartTime, typeof(string), null, CultureInfo.InvariantCulture)}-" +
+                $"{_timeConverter.Convert(overlap.Left.EndTime, typeof(string), null, CultureInfo.InvariantCulture)}) и " +
+                $"\"{overlap.Right.Word}\" (" +
+                $"{_timeConverter.Convert(overlap.Right.StartTime, typeof(string), null, CultureInfo.InvariantCulture)}-" +
+                $"{_timeConverter.Convert(overlap.Right.EndTime, typeof(string), null, CultureInfo.InvariantCulture)})");
+        }
+
+        return errorBuilder.ToString().TrimEnd();
     }
 
     /// <summary>
@@ -291,5 +357,31 @@ public class WordSeriesService : IWordSeriesService
     private bool WordsOverlap(WordTimestamp w1, WordTimestamp w2)
     {
         return w1.StartTime < w2.EndTime && w2.StartTime < w1.EndTime;
+    }
+
+    private void RebuildSeries(ObservableCollection<Series> target, IEnumerable<WordTimestamp> words)
+    {
+        var orderedWords = words
+            .OrderBy(word => word.StartTime)
+            .ThenBy(word => word.Word, StringComparer.Ordinal)
+            .ToList();
+
+        var groupedWords = GroupWordsIntoSeries(orderedWords);
+        var rebuiltSeries = ConvertToSeriesList(groupedWords);
+        SynchronizeSeriesCollection(target, rebuiltSeries);
+    }
+
+    private static void SynchronizeSeriesCollection(ObservableCollection<Series> target, IReadOnlyList<Series> source)
+    {
+        int sharedCount = Math.Min(target.Count, source.Count);
+
+        for (int index = 0; index < sharedCount; index++)
+            target[index] = source[index];
+
+        for (int index = target.Count - 1; index >= source.Count; index--)
+            target.RemoveAt(index);
+
+        for (int index = sharedCount; index < source.Count; index++)
+            target.Add(source[index]);
     }
 }

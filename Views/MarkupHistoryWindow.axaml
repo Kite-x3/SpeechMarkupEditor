@@ -37,8 +37,10 @@
                            Foreground="#666666"
                            TextWrapping="Wrap"/>
                 <ListBox Grid.Row="1"
+                         x:Name="HistoryListBox"
                          ItemsSource="{Binding Entries}"
-                         SelectedItem="{Binding SelectedEntry, Mode=TwoWay}">
+                         SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+                         DoubleTapped="HistoryListBox_OnDoubleTapped">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="models:MarkupHistoryEntrySummary">
                             <Border Margin="0,0,0,8"

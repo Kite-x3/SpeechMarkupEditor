@@ -1,8 +1,9 @@
-﻿﻿﻿// Copyright (C) Neurosoft
+﻿// Copyright (C) Neurosoft
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -33,6 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IWordMarkerDialogService _wordMarkerDialogService;
     private readonly ISpeechRecognitionService _speechRecognitionService;
     private readonly IWordSeriesService _wordSeriesService;
+    private readonly IMarkupHistoryAutoSaveService _markupHistoryAutoSaveService;
     private readonly IExportService _exportService;
     private readonly IImportService _importService;
     private readonly IMarkupHistoryService _markupHistoryService;
@@ -133,7 +135,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(IDialogService dialogService, IAudioSourceProviderFactory sourceProviderFactory,
         IServiceProvider serviceProvider, IAudioVisualizationService visualizationService, IWordMarkerDialogService wordMarkerDialogService,
-        ISpeechRecognitionService speechRecognitionService, IWordSeriesService wordSeriesService, IExportService exportService,
+        ISpeechRecognitionService speechRecognitionService, IWordSeriesService wordSeriesService, IMarkupHistoryAutoSaveService markupHistoryAutoSaveService, IExportService exportService,
         IImportService importService, IMarkupHistoryService markupHistoryService)
     {
         _dialogService = dialogService;
@@ -143,6 +145,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _wordMarkerDialogService = wordMarkerDialogService;
         _speechRecognitionService = speechRecognitionService;
         _wordSeriesService = wordSeriesService;
+        _markupHistoryAutoSaveService = markupHistoryAutoSaveService;
         _leftSeries = new ObservableCollection<Series>();
         _rightSeries = new ObservableCollection<Series>();
         _exportService = exportService;
@@ -283,6 +286,38 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task SelectMissingAudioFile()
+    {
+        try
+        {
+            var source = await _sourceProviderFactory.CreateSourceAsync();
+
+            if (source == null)
+                return;
+
+            _currentAudioSource = source;
+
+            _fullFilePath = source.SourcePath ?? string.Empty;
+
+            await InitializeAudioService(source);
+
+            SelectedFileName = source.DisplayName;
+
+            IsFileSelected = true;
+            HasAudioLoaded = true;
+
+            await _visualizationService
+                .UpdateVisualizationAsync(source);
+            ScheduleHistorySave();
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorAsync(
+                $"{Resources.Error}: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
     private async Task ImportMarkup()
     {
         var importedMarkup = await _importService.ImportAsync();
@@ -290,26 +325,33 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         _recognitionCts?.Cancel();
+        _markupHistoryAutoSaveService.CancelPendingSave();
         ApplyImportedMarkup(importedMarkup);
-        await SaveCurrentMarkupToHistoryInternalAsync();
+
+        await LoadAudioAsync(importedMarkup.SourcePath);
+
+        ScheduleHistorySave();
     }
 
     [RelayCommand]
-    private void Export()
+    private async Task Export()
     {
         if (LeftSeries.Count == 0 && RightSeries.Count == 0)
         {
-            _dialogService.ShowErrorAsync(Resources.NothingToExport);
+            await _dialogService.ShowErrorAsync(Resources.NothingToExport);
             return;
         }
 
         try
         {
-            _exportService.ExportAsync(RightSeries, LeftSeries, SelectedFileName);
+            if (!await PrepareMarkupForSaveAsync())
+                return;
+
+            await _exportService.ExportAsync(LeftSeries, RightSeries, SelectedFileName, _fullFilePath);
         }
         catch (Exception ex)
         {
-            _dialogService.ShowErrorAsync($"{Resources.ExportError}: {ex.Message}");
+            await _dialogService.ShowErrorAsync($"{Resources.ExportError}: {ex.Message}");
         }
     }
 
@@ -319,7 +361,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsProcessingAudio || _recognitionCts == null)
             return;
 
-        var shouldCancel = await _dialogService.ShowConfirmationAsync(
+        bool shouldCancel = await _dialogService.ShowConfirmationAsync(
             Resources.Warning,
             Resources.StopRecognitionConfirmation,
             Resources.StopRecognition,
@@ -363,7 +405,7 @@ public partial class MainWindowViewModel : ViewModelBase
             UpdateRecognitionPresentationMode();
 
             if (mergeResult.HasAddedWords)
-                await SaveCurrentMarkupToHistoryInternalAsync();
+                ScheduleHistorySave();
 
             if (mergeResult.HasOverlaps)
             {
@@ -419,7 +461,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (marker != null)
         {
             AddWordToCollection(marker);
-            await SaveCurrentMarkupToHistoryInternalAsync();
+            ScheduleHistorySave();
         }
     }
 
@@ -464,7 +506,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _wordSeriesService.RemoveWordFromSeries(LeftSeries, word);
         UpdateRecognitionPresentationMode();
-        await SaveCurrentMarkupToHistoryInternalAsync();
+        ScheduleHistorySave();
     }
 
     [RelayCommand]
@@ -481,7 +523,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _wordSeriesService.RemoveWordFromSeries(RightSeries, word);
         UpdateRecognitionPresentationMode();
-        await SaveCurrentMarkupToHistoryInternalAsync();
+        ScheduleHistorySave();
     }
 
     [RelayCommand]
@@ -493,6 +535,10 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
+        if (!await PrepareMarkupForSaveAsync())
+            return;
+
+        await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
         await SaveCurrentMarkupToHistoryInternalAsync(showSuccessMessage: true);
     }
 
@@ -506,20 +552,10 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         _recognitionCts?.Cancel();
+        _markupHistoryAutoSaveService.CancelPendingSave();
         ApplyImportedMarkup(importedMarkup);
 
-        var source = _sourceProviderFactory.CreateSourceFromPath(importedMarkup.SourcePath ?? string.Empty);
-        if (source == null)
-            return;
-
-        _currentAudioSource = source;
-        _fullFilePath = source.SourcePath ?? string.Empty;
-
-        await InitializeAudioService(source);
-        SelectedFileName = source.DisplayName;
-        IsFileSelected = true;
-        HasAudioLoaded = true;
-        await _visualizationService.UpdateVisualizationAsync(source);
+        await LoadAudioAsync(importedMarkup.SourcePath);
     }
 
     private void UpdateRecognitionPresentationMode()
@@ -565,15 +601,98 @@ public partial class MainWindowViewModel : ViewModelBase
         if (LeftSeries.Count == 0 && RightSeries.Count == 0)
             return;
 
-        await _markupHistoryService.SaveAsync(SelectedFileName, LeftSeries, RightSeries, _fullFilePath);
+        await _markupHistoryAutoSaveService.SaveNowAsync(SelectedFileName, LeftSeries, RightSeries, _fullFilePath);
 
         if (showSuccessMessage)
             await _dialogService.ShowSuccessAsync(Resources.MarkupSavedToHistory);
     }
 
+    private async Task<bool> PrepareMarkupForSaveAsync()
+    {
+        var overlapMessage = BuildSaveOverlapMessage();
+        if (!string.IsNullOrWhiteSpace(overlapMessage))
+        {
+            return await _dialogService.ShowConfirmationAsync(
+                Resources.Warning,
+                overlapMessage,
+                Resources.SaveDespiteOverlaps,
+                Resources.Cancel);
+        }
+
+        _wordSeriesService.RebuildSeriesCollection(LeftSeries);
+        _wordSeriesService.RebuildSeriesCollection(RightSeries);
+        UpdateRecognitionPresentationMode();
+        ScheduleHistorySave();
+        return true;
+    }
+
+    private string? BuildSaveOverlapMessage()
+    {
+        var leftOverlapWarning = _wordSeriesService.GetOverlapWarning(LeftSeries);
+        var rightOverlapWarning = _wordSeriesService.GetOverlapWarning(RightSeries);
+
+        if (string.IsNullOrWhiteSpace(leftOverlapWarning) && string.IsNullOrWhiteSpace(rightOverlapWarning))
+            return null;
+
+        var builder = new StringBuilder();
+        builder.AppendLine(Resources.RebuildSeriesBeforeSaveFailed);
+        builder.AppendLine();
+
+        AppendChannelOverlapWarning(builder, Resources.LeftChannelLabel, leftOverlapWarning);
+        AppendChannelOverlapWarning(builder, Resources.RightChannelLabel, rightOverlapWarning);
+
+        builder.AppendLine();
+        builder.Append(Resources.SaveAnywayQuestion);
+        return builder.ToString();
+    }
+
+    private static void AppendChannelOverlapWarning(StringBuilder builder, string channelName, string? warning)
+    {
+        if (string.IsNullOrWhiteSpace(warning))
+            return;
+
+        if (builder[^1] != '\n')
+            builder.AppendLine();
+
+        builder.AppendLine($"{channelName}:");
+        builder.AppendLine(warning);
+    }
+
     public Task SaveInlineMarkupEditAsync()
     {
-        return SaveCurrentMarkupToHistoryInternalAsync();
+        ScheduleHistorySave();
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private async Task RebuildSeries()
+    {
+        if (LeftSeries.Count == 0 && RightSeries.Count == 0)
+            return;
+
+        var leftOverlapWarning = _wordSeriesService.GetOverlapWarning(LeftSeries);
+        if (!string.IsNullOrWhiteSpace(leftOverlapWarning))
+        {
+            await _dialogService.ShowWarningAsync(leftOverlapWarning);
+            return;
+        }
+
+        var rightOverlapWarning = _wordSeriesService.GetOverlapWarning(RightSeries);
+        if (!string.IsNullOrWhiteSpace(rightOverlapWarning))
+        {
+            await _dialogService.ShowWarningAsync(rightOverlapWarning);
+            return;
+        }
+
+        _wordSeriesService.RebuildSeriesCollection(LeftSeries);
+        _wordSeriesService.RebuildSeriesCollection(RightSeries);
+        UpdateRecognitionPresentationMode();
+        await SaveCurrentMarkupToHistoryInternalAsync();
+    }
+
+    private void ScheduleHistorySave()
+    {
+        _markupHistoryAutoSaveService.ScheduleSave(SelectedFileName, LeftSeries, RightSeries, _fullFilePath);
     }
 
     private static bool AreSeriesCollectionsEqual(IReadOnlyList<Series> left, IReadOnlyList<Series> right)
@@ -637,11 +756,31 @@ public partial class MainWindowViewModel : ViewModelBase
         IsRightChannelActive = _audioService.IsRightChannelActive;
     }
 
+    private async Task LoadAudioAsync(string path)
+    {
+        var source = _sourceProviderFactory.CreateSourceFromPath(path);
+
+        if (source == null)
+            return;
+
+        _currentAudioSource = source;
+        _fullFilePath = source.SourcePath ?? string.Empty;
+
+        await InitializeAudioService(source);
+
+        SelectedFileName = source.DisplayName;
+        IsFileSelected = true;
+        HasAudioLoaded = true;
+
+        await _visualizationService.UpdateVisualizationAsync(source);
+    }
+
     public void Dispose()
     {
         if (_disposed)
             return;
 
+        _markupHistoryAutoSaveService.CancelPendingSave();
         CleanupAudioService();
         _audioServiceScope.Dispose();
         _disposed = true;

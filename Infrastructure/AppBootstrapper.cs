@@ -1,4 +1,4 @@
-﻿﻿// Copyright (C) Neurosoft
+﻿// Copyright (C) Neurosoft
 
 using System;
 using Avalonia.Platform.Storage;
@@ -67,6 +67,7 @@ public class AppBootstrapper
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IRecognitionModelService, RecognitionModelService>();
         services.AddSingleton<IMarkupHistoryService, MarkupHistoryService>();
+        services.AddSingleton<IMarkupHistoryAutoSaveService, MarkupHistoryAutoSaveService>();
 
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<ModelSettingsViewModel>();

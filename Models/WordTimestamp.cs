@@ -1,109 +1,126 @@
-// Copyright (C) Neurosoft
+﻿// Copyright (C) Neurosoft
 
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using SpeechMarkupEditor.Assets;
 
 namespace SpeechMarkupEditor.Models;
 
 /// <summary>
-/// Временная метка слова в аудиозаписи с валидацией временных интервалов
+/// Временная метка слова в аудиозаписи с валидацией значений.
 /// </summary>
-public class WordTimestamp : IComparable<WordTimestamp>
+public class WordTimestamp : IComparable<WordTimestamp>, INotifyPropertyChanged
 {
-    private const double TOLERANCE = 0.01;
     private double _startTime;
     private double _endTime;
     private string _word;
 
+    public bool RangeWasAutoCorrected { get; private set; }
+    public string? LastRangeCorrectionMessage { get; private set; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public WordTimestamp(string word, double startTime, double endTime)
     {
         ValidateWord(word);
-        ValidateRange(startTime, endTime);
+        ValidateNonNegative(startTime, nameof(startTime), Resources.NegativeStartTime);
+        ValidateNonNegative(endTime, nameof(endTime), Resources.NegativeEndTime);
 
         _word = word;
         _startTime = startTime;
         _endTime = endTime;
+        RangeWasAutoCorrected = false;
+        LastRangeCorrectionMessage = null;
     }
 
-    /// <summary>
-    /// Текст слова
-    /// </summary>
     public string Word
     {
         get => _word;
         set
         {
-            ValidateWord(value);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                string old = _word;
+                _word = string.Empty;
+                OnPropertyChanged();
+
+                _word = old;
+                OnPropertyChanged();
+                return;
+            }
+
+            value = value.Trim();
+            if (_word == value)
+                return;
+
             _word = value;
+            OnPropertyChanged();
         }
     }
 
-    /// <summary>
-    /// Время начала слова в секундах
-    /// </summary>
     public double StartTime
     {
         get => _startTime;
         set
         {
-            ValidateRange(value, _endTime);
+            ValidateNonNegative(value, nameof(StartTime), Resources.NegativeStartTime);
+            if (Math.Abs(_startTime - value) <= double.Epsilon)
+                return;
+
             _startTime = value;
+            ResetRangeCorrectionState();
+            OnPropertyChanged();
         }
     }
 
-    /// <summary>
-    /// Время окончания слова в секундах
-    /// </summary>
     public double EndTime
     {
         get => _endTime;
         set
         {
-            ValidateRange(_startTime, value);
+            ValidateNonNegative(value, nameof(EndTime), Resources.NegativeEndTime);
+            if (Math.Abs(_endTime - value) <= double.Epsilon)
+                return;
+
             _endTime = value;
+            ResetRangeCorrectionState();
+            OnPropertyChanged();
         }
     }
 
-    /// <summary>
-    /// Проверка валидности текста слова
-    /// </summary>
-    /// <param name="word">Текст слова для проверки</param>
-    /// <exception cref="ArgumentNullException">Выбрасывается если word равен null или состоит из пробелов</exception>
-    private void ValidateWord(string word)
+    private static string? ValidateWord(string word)
     {
-        if (string.IsNullOrWhiteSpace(word))
-            throw new ArgumentNullException(
-                nameof(word),
-                Resources.WordEmpty);
+        return string.IsNullOrWhiteSpace(word) ? Resources.WordEmpty : null;
     }
 
-    /// <summary>
-    /// Проверка корректности временного интервала
-    /// </summary>
-    /// <param name="start">Время начала</param>
-    /// <param name="end">Время окончания</param>
-    /// <exception cref="ArgumentOutOfRangeException">Если start или end отрицательные</exception>
-    /// <exception cref="ArgumentException">Если start >= end</exception>
-    private static void ValidateRange(double start, double end)
+    private static void ValidateNonNegative(double value, string paramName, string message)
     {
-        if (start < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(start),
-                Resources.NegativeStartTime);
+        if (value < 0)
+            throw new ArgumentOutOfRangeException(paramName, message);
+    }
 
-        if (end < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(end),
-                Resources.NegativeEndTime);
+    private void ResetRangeCorrectionState()
+    {
+        if (!RangeWasAutoCorrected && LastRangeCorrectionMessage == null)
+            return;
 
-        if (start >= end - TOLERANCE)
-                throw new ArgumentException(Resources.StartAfterEnd);
+        RangeWasAutoCorrected = false;
+        LastRangeCorrectionMessage = null;
+        OnPropertyChanged(nameof(RangeWasAutoCorrected));
+        OnPropertyChanged(nameof(LastRangeCorrectionMessage));
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public int CompareTo(WordTimestamp other)
     {
         int timeComparison = _startTime.CompareTo(other._startTime);
-        return timeComparison != 0 ? timeComparison
+        return timeComparison != 0
+            ? timeComparison
             : string.Compare(_word, other._word, StringComparison.Ordinal);
     }
 }

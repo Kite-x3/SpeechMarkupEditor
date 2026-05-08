@@ -24,13 +24,13 @@ public class ImportFromJsonService : IImportService
 
     public async Task<ImportedMarkup?> ImportAsync()
     {
-        var filePath = await _dialogService.ShowOpenFileDialogAsync(Resources.ImportMarkupDialogTitle, Resources.JsonFilesFilter);
+        string? filePath = await _dialogService.ShowOpenFileDialogAsync(Resources.ImportMarkupDialogTitle, Resources.JsonFilesFilter);
         if (string.IsNullOrWhiteSpace(filePath))
             return null;
 
         try
         {
-            var json = await File.ReadAllTextAsync(filePath);
+            string json = await File.ReadAllTextAsync(filePath);
             var imported = JsonSerializer.Deserialize<ImportedMarkupDto>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -42,9 +42,9 @@ public class ImportFromJsonService : IImportService
             return new ImportedMarkup
             {
                 FileName = string.IsNullOrWhiteSpace(imported.FileName)
-                    ? Path.GetFileNameWithoutExtension(filePath)
+                    ? Path.GetFileNameWithoutExtension(imported.AudioFilePath)
                     : imported.FileName,
-                SourcePath = filePath,
+                SourcePath = imported.AudioFilePath,
                 LeftChannel = MapSeries(imported.LeftChannel),
                 RightChannel = MapSeries(imported.RightChannel)
             };
@@ -93,6 +93,7 @@ public class ImportFromJsonService : IImportService
     private sealed class ImportedMarkupDto
     {
         public string? FileName { get; set; }
+        public string? AudioFilePath { get; set; }
         public List<SeriesDto>? LeftChannel { get; set; }
         public List<SeriesDto>? RightChannel { get; set; }
     }

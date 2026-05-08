@@ -1,4 +1,4 @@
-﻿﻿// Copyright (C) Neurosoft
+﻿// Copyright (C) Neurosoft
 
 using System;
 using System.IO;

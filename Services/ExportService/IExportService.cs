@@ -8,6 +8,9 @@ namespace SpeechMarkupEditor.Services.ExportService;
 
 public interface IExportService
 {
-    Task ExportAsync(ObservableCollection<Series> leftSeries,
-        ObservableCollection<Series> rightSeries, string fileName);
+    Task ExportAsync(
+        ObservableCollection<Series> leftSeries,
+        ObservableCollection<Series> rightSeries,
+        string fileName,
+        string audioFilePath);
 }

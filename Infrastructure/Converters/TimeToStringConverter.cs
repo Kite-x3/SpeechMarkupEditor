@@ -3,26 +3,25 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
+using SpeechMarkupEditor.Infrastructure.Formatting;
 
 namespace SpeechMarkupEditor.Infrastructure.Converters;
 
 public class TimeToStringConverter: IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is double time)
-        {
-            var timeSpan = TimeSpan.FromSeconds(time);
-            return timeSpan.TotalHours >= 1
-                ? timeSpan.ToString(@"hh\:mm\:ss\.ff", CultureInfo.InvariantCulture)
-                : timeSpan.ToString(@"mm\:ss\.ff", CultureInfo.InvariantCulture);
-        }
+            return TimeTextFormatter.Format(time);
 
-        return "00:00.00";
+        return TimeTextFormatter.Format(0);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        if (value is string text && TimeTextFormatter.TryParse(text, out var seconds))
+            return seconds;
+
+        throw new FormatException("Invalid time format.");
     }
 }

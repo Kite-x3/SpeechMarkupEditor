@@ -50,7 +50,7 @@ public class SpeechRecognitionService: ISpeechRecognitionService
     private bool EnsureModelInitialized()
     {
         var currentModel = _recognitionModelService.GetCurrentModel();
-        var currentPath = currentModel?.Path;
+        string? currentPath = currentModel?.Path;
 
         if (_modelInitialized && _model != null &&
             string.Equals(_loadedModelPath, currentPath, StringComparison.OrdinalIgnoreCase))
@@ -186,24 +186,10 @@ public class SpeechRecognitionService: ISpeechRecognitionService
 
         return new WordsRecognitionResult
         {
-            LeftChannelSeries = ConvertToSeriesList(leftSeries),
-            RightChannelSeries = ConvertToSeriesList(rightSeries)
+            LeftChannelSeries = _wordSeriesService.ConvertToSeriesList(leftSeries),
+            RightChannelSeries = _wordSeriesService.ConvertToSeriesList(rightSeries)
         };
     }
-
-    private List<Series> ConvertToSeriesList(List<List<WordTimestamp>> wordSeries)
-    {
-        return wordSeries.Select((series, index) =>
-        {
-            var newSeries = new Series { SeriesNumber = index + 1 };
-            foreach (var word in series)
-            {
-                newSeries.AddWord(word);
-            }
-            return newSeries;
-        }).ToList();
-    }
-
 
     /// <summary>
     /// Преобразует аудиопоток к частоте 16kHz

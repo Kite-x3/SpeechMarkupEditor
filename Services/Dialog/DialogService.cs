@@ -77,7 +77,7 @@ public class DialogService : IDialogService
 
         var button = new Button
         {
-            Content = "OK",
+            Content = Resources.Ok,
             FontSize = 14,
             MinWidth = 70,
             MinHeight = 30,
@@ -257,7 +257,7 @@ public class DialogService : IDialogService
             var options = new FilePickerSaveOptions
             {
                 Title = title,
-                SuggestedFileName = "speech_markup",
+                SuggestedFileName = Resources.DefaultSuggestedFileName,
                 FileTypeChoices = ParseFileFilters(filters),
                 ShowOverwritePrompt = true
             };

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using SpeechMarkupEditor.Models;
 using SpeechMarkupEditor.ViewModels;
 
@@ -15,15 +16,25 @@ public partial class MarkupHistoryWindow : Window
 
     private void OpenButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (DataContext is MarkupHistoryViewModel viewModel)
-        {
-            SelectedEntry = viewModel.SelectedEntry;
-            Close(SelectedEntry);
-        }
+        OpenSelectedEntry();
     }
 
     private void CloseButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close(null);
+    }
+
+    private void HistoryListBox_OnDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        OpenSelectedEntry();
+    }
+
+    private void OpenSelectedEntry()
+    {
+        if (DataContext is not MarkupHistoryViewModel viewModel || viewModel.SelectedEntry == null)
+            return;
+
+        SelectedEntry = viewModel.SelectedEntry;
+        Close(SelectedEntry);
     }
 }

@@ -22,8 +22,11 @@ public class ExportToJsonService : IExportService
         _dialogService = dialogService;
     }
 
-    public async Task ExportAsync(ObservableCollection<Series> leftSeries,
-        ObservableCollection<Series> rightSeries, string fileName)
+    public async Task ExportAsync(
+        ObservableCollection<Series> leftSeries,
+        ObservableCollection<Series> rightSeries,
+        string fileName,
+        string audioFilePath)
     {
         if (leftSeries == null && rightSeries == null)
             throw new ArgumentNullException(nameof(leftSeries));
@@ -33,6 +36,7 @@ public class ExportToJsonService : IExportService
             var exportData = new
             {
                 FileName = fileName,
+                AudioFilePath = audioFilePath,
                 LeftChannel = leftSeries,
                 RightChannel = rightSeries
             };
