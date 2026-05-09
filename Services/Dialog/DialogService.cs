@@ -10,9 +10,7 @@ using Avalonia.Layout;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
-using Microsoft.Extensions.Options;
 using SpeechMarkupEditor.Assets;
-using SpeechMarkupEditor.Infrastructure.Configuration;
 
 namespace SpeechMarkupEditor.Services.Dialog;
 
@@ -28,25 +26,12 @@ public class DialogService : IDialogService
     private readonly Lazy<WindowIcon?> _successIcon;
     private readonly Lazy<WindowIcon?> _appIcon;
 
-    public DialogService(IOptions<DialogSettings> settings)
+    public DialogService()
     {
-        _appIcon = new Lazy<WindowIcon?>(() => LoadIcon("avares://SpeechMarkupEditor/Assets/SpeechMarkEditor.png"));
-        _warningIcon = new Lazy<WindowIcon?>(() => LoadIcon(settings.Value.WarningIconPath));
-        _errorIcon = new Lazy<WindowIcon?>(() => LoadIcon(settings.Value.ErrorIconPath));
-        _successIcon = new Lazy<WindowIcon>(() => LoadIcon(settings.Value.SuccessIconPath));
-    }
-
-    private static WindowIcon? LoadIcon(string uri)
-    {
-        try
-        {
-            using var bitmap = new Bitmap(AssetLoader.Open(new Uri(uri)));
-            return new WindowIcon(bitmap);
-        }
-        catch
-        {
-            return null;
-        }
+        _appIcon = new Lazy<WindowIcon?>(() => WindowIconFactory.CreateIcon(AssetPaths.APP_ICON_URI));
+        _warningIcon = new Lazy<WindowIcon?>(() => WindowIconFactory.CreateIcon(AssetPaths.WARNING_ICON_URI));
+        _errorIcon = new Lazy<WindowIcon?>(() => WindowIconFactory.CreateIcon(AssetPaths.ERROR_ICON_URI));
+        _successIcon = new Lazy<WindowIcon?>(() => WindowIconFactory.CreateIcon(AssetPaths.SUCCESS_ICON_URI));
     }
 
     private static FilePickerFileType[] ParseFileFilters(string filters)

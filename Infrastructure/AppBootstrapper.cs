@@ -13,6 +13,7 @@ using SpeechMarkupEditor.Services.AudioVisualization;
 using SpeechMarkupEditor.Services.Dialog;
 using SpeechMarkupEditor.Services.ExportService;
 using SpeechMarkupEditor.Services.ImportService;
+using SpeechMarkupEditor.Services.Localization;
 using SpeechMarkupEditor.Services.MarkupHistory;
 using SpeechMarkupEditor.Services.NewWordMarkerDialog;
 using SpeechMarkupEditor.Services.RecognitionModels;
@@ -31,6 +32,7 @@ public class AppBootstrapper
     public AppBootstrapper()
     {
         var host = Host.CreateDefaultBuilder()
+            .UseContentRoot(AppContext.BaseDirectory)
             .ConfigureServices(ConfigureServices)
             .Build();
 
@@ -44,11 +46,16 @@ public class AppBootstrapper
         ServiceProvider = host.Services;
     }
 
+    public void ApplyLocalization()
+    {
+        ServiceProvider.GetRequiredService<ILocalizationService>().ApplySavedCulture();
+    }
+
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services.Configure<AudioSettings>(context.Configuration.GetSection("AudioSettings"));
         services.Configure<ModelSettings>(context.Configuration.GetSection("ModelSettings"));
-        services.Configure<DialogSettings>(context.Configuration.GetSection("DialogSettings"));
+        services.Configure<LocalizationSettings>(context.Configuration.GetSection("LocalizationSettings"));
         services.AddDbContextFactory<AppDbContext>(options =>
             options.UseSqlite($"Data Source={AppDatabasePaths.GetDatabasePath()}"));
 
@@ -65,6 +72,7 @@ public class AppBootstrapper
         services.AddSingleton<IAudioSourceProviderFactory, FileAudioSourceProviderFactory>();
         services.AddSingleton<IStorageProviderAccessor, StorageProviderAccessor>();
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<IRecognitionModelService, RecognitionModelService>();
         services.AddSingleton<IMarkupHistoryService, MarkupHistoryService>();
         services.AddSingleton<IMarkupHistoryAutoSaveService, MarkupHistoryAutoSaveService>();

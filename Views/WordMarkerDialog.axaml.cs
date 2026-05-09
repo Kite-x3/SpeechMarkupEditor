@@ -2,6 +2,7 @@
 
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
+using SpeechMarkupEditor.Assets;
 using SpeechMarkupEditor.Messages;
 
 namespace SpeechMarkupEditor.Views;
@@ -11,6 +12,7 @@ public partial class WordMarkerDialog : Window
     public WordMarkerDialog()
     {
         InitializeComponent();
+        WindowIconFactory.ApplyAppIcon(this);
 
         WeakReferenceMessenger.Default.Register<WordMarkerDialog, CloseDialogMessage>(
             this, (recipient, message)

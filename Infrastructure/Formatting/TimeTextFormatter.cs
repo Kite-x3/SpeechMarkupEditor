@@ -5,17 +5,17 @@ namespace SpeechMarkupEditor.Infrastructure.Formatting;
 
 public static class TimeTextFormatter
 {
-    public const double MaxTimeSeconds = 60 * 60 + 59.999;
-    private const int ExpectedDigitsCount = 7;
+    public const double MAX_TIME_SECONDS = 60 * 60 + 59.999;
+    private const int EXPECTED_DIGITS_COUNT = 7;
 
     public static string Format(double totalSeconds)
     {
-        var totalMilliseconds = (long)Math.Round(
-            Math.Clamp(totalSeconds, 0, MaxTimeSeconds) * 1000,
+        long totalMilliseconds = (long)Math.Round(
+            Math.Clamp(totalSeconds, 0, MAX_TIME_SECONDS) * 1000,
             MidpointRounding.AwayFromZero);
-        var minutes = totalMilliseconds / 60000;
-        var seconds = (totalMilliseconds % 60000) / 1000;
-        var milliseconds = totalMilliseconds % 1000;
+        long minutes = totalMilliseconds / 60000;
+        long seconds = totalMilliseconds % 60000 / 1000;
+        long milliseconds = totalMilliseconds % 1000;
 
         return string.Create(
             CultureInfo.InvariantCulture,
@@ -28,13 +28,13 @@ public static class TimeTextFormatter
         if (string.IsNullOrWhiteSpace(text))
             return false;
 
-        var digits = ExtractDigits(text, ExpectedDigitsCount);
-        if (digits.Length != ExpectedDigitsCount)
+        string digits = ExtractDigits(text, EXPECTED_DIGITS_COUNT);
+        if (digits.Length != EXPECTED_DIGITS_COUNT)
             return false;
 
-        var minutes = int.Parse(digits[..2], CultureInfo.InvariantCulture);
-        var wholeSeconds = int.Parse(digits.Substring(2, 2), CultureInfo.InvariantCulture);
-        var milliseconds = int.Parse(digits.Substring(4, 3), CultureInfo.InvariantCulture);
+        int minutes = int.Parse(digits[..2], CultureInfo.InvariantCulture);
+        int wholeSeconds = int.Parse(digits.Substring(2, 2), CultureInfo.InvariantCulture);
+        int milliseconds = int.Parse(digits.Substring(4, 3), CultureInfo.InvariantCulture);
 
         minutes = Math.Clamp(minutes, 0, 60);
         wholeSeconds = Math.Clamp(wholeSeconds, 0, 59);
@@ -50,7 +50,7 @@ public static class TimeTextFormatter
             return string.Empty;
 
         Span<char> buffer = stackalloc char[Math.Max(maxLength, 1)];
-        var count = 0;
+        int count = 0;
         foreach (var ch in text)
         {
             if (!char.IsDigit(ch))

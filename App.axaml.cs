@@ -24,7 +24,9 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        _serviceProvider = new AppBootstrapper().ServiceProvider;
+        var bootstrapper = new AppBootstrapper();
+        bootstrapper.ApplyLocalization();
+        _serviceProvider = bootstrapper.ServiceProvider;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

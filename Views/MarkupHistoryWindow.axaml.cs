@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using SpeechMarkupEditor.Assets;
 using SpeechMarkupEditor.Models;
 using SpeechMarkupEditor.ViewModels;
 
@@ -12,6 +13,7 @@ public partial class MarkupHistoryWindow : Window
     public MarkupHistoryWindow()
     {
         InitializeComponent();
+        WindowIconFactory.ApplyAppIcon(this);
     }
 
     private void OpenButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

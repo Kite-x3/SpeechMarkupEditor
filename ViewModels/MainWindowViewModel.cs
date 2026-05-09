@@ -3,11 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using SpeechMarkupEditor.Assets;
 using SpeechMarkupEditor.Infrastructure.Audio;
@@ -18,6 +22,7 @@ using SpeechMarkupEditor.Services.AudioVisualization;
 using SpeechMarkupEditor.Services.Dialog;
 using SpeechMarkupEditor.Services.ExportService;
 using SpeechMarkupEditor.Services.ImportService;
+using SpeechMarkupEditor.Services.Localization;
 using SpeechMarkupEditor.Services.MarkupHistory;
 using SpeechMarkupEditor.Services.NewWordMarkerDialog;
 using SpeechMarkupEditor.Services.SpeechRecognition;
@@ -38,6 +43,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IExportService _exportService;
     private readonly IImportService _importService;
     private readonly IMarkupHistoryService _markupHistoryService;
+    private readonly ILocalizationService _localizationService;
+    private readonly bool _isLanguageSelectionInitialized;
     private IAudioService? _audioService;
     private IAudioSourceProvider? _currentAudioSource;
     private string _fullFilePath = string.Empty;
@@ -129,6 +136,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _showSeries = true;
 
+    [ObservableProperty]
+    private ObservableCollection<LanguageOption> _availableLanguages = [];
+
+    [ObservableProperty]
+    private LanguageOption? _selectedLanguage;
+
     public double VolumePercentage => Volume * 100;
 
     public MainWindowViewModel(){}
@@ -136,7 +149,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(IDialogService dialogService, IAudioSourceProviderFactory sourceProviderFactory,
         IServiceProvider serviceProvider, IAudioVisualizationService visualizationService, IWordMarkerDialogService wordMarkerDialogService,
         ISpeechRecognitionService speechRecognitionService, IWordSeriesService wordSeriesService, IMarkupHistoryAutoSaveService markupHistoryAutoSaveService, IExportService exportService,
-        IImportService importService, IMarkupHistoryService markupHistoryService)
+        IImportService importService, IMarkupHistoryService markupHistoryService, ILocalizationService localizationService)
     {
         _dialogService = dialogService;
         _sourceProviderFactory = sourceProviderFactory;
@@ -151,6 +164,11 @@ public partial class MainWindowViewModel : ViewModelBase
         _exportService = exportService;
         _importService = importService;
         _markupHistoryService = markupHistoryService;
+        _localizationService = localizationService;
+        AvailableLanguages = new ObservableCollection<LanguageOption>(_localizationService.GetAvailableLanguages());
+        SelectedLanguage = AvailableLanguages.FirstOrDefault(item => item.Code == _localizationService.CurrentLanguageCode)
+            ?? AvailableLanguages.FirstOrDefault();
+        _isLanguageSelectionInitialized = true;
     }
 
     /// <summary>
@@ -382,6 +400,22 @@ public partial class MainWindowViewModel : ViewModelBase
         await RunRecognitionAsync(_currentAudioSource);
     }
 
+    partial void OnSelectedLanguageChanged(LanguageOption? value)
+    {
+        if (!_isLanguageSelectionInitialized || value == null || value.Code == _localizationService.CurrentLanguageCode)
+            return;
+
+        _ = ApplyLanguageInternalAsync(value.Code);
+    }
+
+    private async Task ApplyLanguageInternalAsync(string languageCode)
+    {
+        _recognitionCts?.Cancel();
+        await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
+        await _localizationService.SetLanguageAsync(languageCode);
+        RestartApplication();
+    }
+
     private async Task RunRecognitionAsync(IAudioSourceProvider source)
     {
         _recognitionCts?.Cancel();
@@ -409,7 +443,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             if (mergeResult.HasOverlaps)
             {
-                var warningMessage = mergeResult.HasAddedWords
+                string? warningMessage = mergeResult.HasAddedWords
                     ? Resources.RecognitionOverlapsPartialAdded
                     : Resources.RecognitionOverlapsNothingAdded;
                 await _dialogService.ShowWarningAsync(warningMessage);
@@ -461,7 +495,8 @@ public partial class MainWindowViewModel : ViewModelBase
         if (marker != null)
         {
             AddWordToCollection(marker);
-            ScheduleHistorySave();
+            await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
+            await SaveCurrentMarkupToHistoryInternalAsync(false);
         }
     }
 
@@ -495,7 +530,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task RemoveLeftWord(WordTimestamp word)
     {
-        var confirmed = await _dialogService.ShowConfirmationAsync(
+        bool confirmed = await _dialogService.ShowConfirmationAsync(
             Resources.Warning,
             string.Format(Resources.DeleteWordLeftChannelFormat, word.Word),
             Resources.Delete,
@@ -506,13 +541,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _wordSeriesService.RemoveWordFromSeries(LeftSeries, word);
         UpdateRecognitionPresentationMode();
-        ScheduleHistorySave();
+        await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
+        await SaveCurrentMarkupToHistoryInternalAsync(false);
     }
 
     [RelayCommand]
     private async Task RemoveRightWord(WordTimestamp word)
     {
-        var confirmed = await _dialogService.ShowConfirmationAsync(
+        bool confirmed = await _dialogService.ShowConfirmationAsync(
             Resources.Warning,
             string.Format(Resources.DeleteWordRightChannelFormat, word.Word),
             Resources.Delete,
@@ -523,7 +559,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _wordSeriesService.RemoveWordFromSeries(RightSeries, word);
         UpdateRecognitionPresentationMode();
-        ScheduleHistorySave();
+        await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
+        await SaveCurrentMarkupToHistoryInternalAsync(false);
     }
 
     [RelayCommand]
@@ -785,6 +822,23 @@ public partial class MainWindowViewModel : ViewModelBase
         _audioServiceScope.Dispose();
         _disposed = true;
         GC.SuppressFinalize(this);
+    }
+
+    private static void RestartApplication()
+    {
+        string? processPath = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(processPath))
+            return;
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = processPath,
+            WorkingDirectory = AppContext.BaseDirectory,
+            UseShellExecute = true
+        });
+
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.Shutdown();
     }
 
 }

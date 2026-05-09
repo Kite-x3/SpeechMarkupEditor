@@ -8,7 +8,6 @@
         mc:Ignorable="d"
         x:Class="SpeechMarkupEditor.Views.MarkupHistoryWindow"
         x:DataType="vm:MarkupHistoryViewModel"
-        Icon="/Assets/SpeechMarkEditor.png"
         Title="{x:Static res:Resources.MarkupHistoryTitle}"
         Width="920"
         Height="520"

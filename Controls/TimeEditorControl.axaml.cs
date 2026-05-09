@@ -13,7 +13,7 @@ namespace SpeechMarkupEditor.Controls;
 
 public partial class TimeEditorControl : UserControl
 {
-    private const double MinimumRangeGapSeconds = 0.001;
+    private const double MINIMUM_RANGE_GAP_SECONDS = 0.001;
 
     public static readonly StyledProperty<double> TimeValueProperty =
         AvaloniaProperty.Register<TimeEditorControl, double>(
@@ -23,7 +23,6 @@ public partial class TimeEditorControl : UserControl
     public static readonly StyledProperty<bool> IsStartEditorProperty =
         AvaloniaProperty.Register<TimeEditorControl, bool>(nameof(IsStartEditor));
 
-    private bool _suppressEvents;
     private bool _internalTimeValueUpdate;
     public double TimeValue
     {
@@ -65,15 +64,6 @@ public partial class TimeEditorControl : UserControl
         ApplyTimeToFields(TimeValue);
     }
 
-    private void OnTimeTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        if (_suppressEvents)
-            return;
-
-        if (TimeTextFormatter.TryParse(TimeTextBox.Text, out var parsedSeconds))
-            SetTimeValue(ClampToWordBounds(parsedSeconds));
-    }
-
     private void OnTimeTextBoxGotFocus(object? sender, GotFocusEventArgs e)
     {
         TimeTextBox.SelectionStart = 0;
@@ -99,27 +89,19 @@ public partial class TimeEditorControl : UserControl
 
     private double ClampToWordBounds(double candidateSeconds)
     {
-        candidateSeconds = Math.Clamp(candidateSeconds, 0, TimeTextFormatter.MaxTimeSeconds);
+        candidateSeconds = Math.Clamp(candidateSeconds, 0, TimeTextFormatter.MAX_TIME_SECONDS);
 
         if (DataContext is not Models.WordTimestamp word)
             return candidateSeconds;
 
         return IsStartEditor
-            ? Math.Min(candidateSeconds, Math.Max(0, word.EndTime - MinimumRangeGapSeconds))
-            : Math.Max(candidateSeconds, Math.Min(TimeTextFormatter.MaxTimeSeconds, word.StartTime + MinimumRangeGapSeconds));
+            ? Math.Min(candidateSeconds, Math.Max(0, word.EndTime - MINIMUM_RANGE_GAP_SECONDS))
+            : Math.Max(candidateSeconds, Math.Min(TimeTextFormatter.MAX_TIME_SECONDS, word.StartTime + MINIMUM_RANGE_GAP_SECONDS));
     }
 
     private void ApplyTimeToFields(double totalSeconds)
     {
-        _suppressEvents = true;
-        try
-        {
-            TimeTextBox.Text = TimeTextFormatter.Format(totalSeconds);
-        }
-        finally
-        {
-            _suppressEvents = false;
-        }
+        TimeTextBox.Text = TimeTextFormatter.Format(totalSeconds);
     }
 
     private void SetTimeValue(double seconds)
@@ -127,7 +109,7 @@ public partial class TimeEditorControl : UserControl
         _internalTimeValueUpdate = true;
         try
         {
-            TimeValue = Math.Clamp(seconds, 0, TimeTextFormatter.MaxTimeSeconds);
+            TimeValue = Math.Clamp(seconds, 0, TimeTextFormatter.MAX_TIME_SECONDS);
         }
         finally
         {

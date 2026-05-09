@@ -708,5 +708,41 @@ namespace SpeechMarkupEditor.Assets {
                 return ResourceManager.GetString("ClearHistoryConfirmation", resourceCulture);
             }
         }
+
+        public static string SettingsTitle {
+            get {
+                return ResourceManager.GetString("SettingsTitle", resourceCulture);
+            }
+        }
+
+        public static string InterfaceLanguage {
+            get {
+                return ResourceManager.GetString("InterfaceLanguage", resourceCulture);
+            }
+        }
+
+        public static string Language {
+            get {
+                return ResourceManager.GetString("Language", resourceCulture);
+            }
+        }
+
+        public static string Apply {
+            get {
+                return ResourceManager.GetString("Apply", resourceCulture);
+            }
+        }
+
+        public static string LanguageChangedRestartRequired {
+            get {
+                return ResourceManager.GetString("LanguageChangedRestartRequired", resourceCulture);
+            }
+        }
+
+        public static string TimeStampMask {
+            get {
+                return ResourceManager.GetString("TimeStampMask", resourceCulture);
+            }
+        }
     }
 }

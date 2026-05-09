@@ -9,7 +9,6 @@
         mc:Ignorable="d"
         x:Class="SpeechMarkupEditor.Views.ModelSettingsWindow"
         x:DataType="vm:ModelSettingsViewModel"
-        Icon="/Assets/SpeechMarkEditor.png"
         Title="{x:Static res:Resources.ModelSettingsTitle}"
         Width="760"
         Height="520"
@@ -55,7 +54,7 @@
                                                         CornerRadius="4"
                                                         HorizontalAlignment="Right"
                                                         ToolTip.Tip="{x:Static res:Resources.DeleteModel}">
-                                                    <svg:Svg Path="avares://SpeechMarkupEditor/Assets/trash-can.svg"
+                                                    <svg:Svg Path="{x:Static res:AssetPaths.TRASH_CAN_SVG_URI}"
                                                              Width="16"
                                                              Height="16"/>
                                                 </Button>

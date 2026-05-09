@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
+using SpeechMarkupEditor.Assets;
 using Microsoft.Extensions.DependencyInjection;
 using SpeechMarkupEditor.Controls;
 using SpeechMarkupEditor.Messages;
@@ -26,12 +27,14 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        WindowIconFactory.ApplyAppIcon(this);
     }
 
     public MainWindow(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+        WindowIconFactory.ApplyAppIcon(this);
 
         WeakReferenceMessenger.Default.Register<MainWindow, WordMarkerDialogRequestMessage>(
             this, (recipient, message) =>

@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
         <xsd:element name="root" msdata:IsDataSet="true">
@@ -19,199 +18,199 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="AppTitle" xml:space="preserve">
-        <value>Редактор речевой разметки</value>
+        <value>Speech Markup Editor</value>
     </data>
     <data name="Error" xml:space="preserve">
-        <value>Ошибка</value>
+        <value>Error</value>
     </data>
     <data name="FileChoosingError" xml:space="preserve">
-        <value>Ошибка выбора аудиофайла</value>
+        <value>Audio file selection error</value>
     </data>
     <data name="SelectWavFile" xml:space="preserve">
-        <value>Выбрать wav файл</value>
+        <value>Select WAV file</value>
     </data>
     <data name="Files" xml:space="preserve">
-        <value>Файлы</value>
+        <value>Files</value>
     </data>
     <data name="NegativeStartTime" xml:space="preserve">
-        <value>Время начала не может быть отрицательным</value>
+        <value>Start time cannot be negative</value>
     </data>
     <data name="StartAfterEnd" xml:space="preserve">
-        <value>Время начала должно быть меньше времени окончания</value>
+        <value>Start time must be less than end time</value>
     </data>
     <data name="NegativeEndTime" xml:space="preserve">
-        <value>Время окончания не может быть отрицательным</value>
+        <value>End time cannot be negative</value>
     </data>
     <data name="EndBeforeStart" xml:space="preserve">
-        <value>Время окончания должно быть больше времени начала</value>
+        <value>End time must be greater than start time</value>
     </data>
     <data name="WordEmpty" xml:space="preserve">
-        <value>Слово не может быть пустым</value>
+        <value>Word cannot be empty</value>
     </data>
     <data name="Word" xml:space="preserve">
-        <value>Слово</value>
+        <value>Word</value>
     </data>
     <data name="StartTime" xml:space="preserve">
-        <value>Тайминг начала</value>
+        <value>Start timing</value>
     </data>
     <data name="EndTime" xml:space="preserve">
-        <value>Тайминг конца</value>
+        <value>End timing</value>
     </data>
     <data name="EarType" xml:space="preserve">
-        <value>В каком ухе слово</value>
+        <value>Which ear contains the word</value>
     </data>
     <data name="LeftEar" xml:space="preserve">
-        <value>Левое ухо</value>
+        <value>Left ear</value>
     </data>
     <data name="RightEar" xml:space="preserve">
-        <value>Правое ухо</value>
+        <value>Right ear</value>
     </data>
     <data name="NonDichoticTest" xml:space="preserve">
-        <value>Не дихотомический тест</value>
+        <value>Non-dichotic test</value>
     </data>
     <data name="Cancel" xml:space="preserve">
-        <value>Отмена</value>
+        <value>Cancel</value>
     </data>
     <data name="WordRequired" xml:space="preserve">
-        <value>Необходимо указать слово</value>
+        <value>A word is required</value>
     </data>
     <data name="WordMarkerDialogTitle" xml:space="preserve">
-        <value>Добавление слова</value>
+        <value>Add word</value>
     </data>
     <data name="WordsInAudioFile" xml:space="preserve">
-        <value>Слова в аудиофайле</value>
+        <value>Words in audio file</value>
     </data>
     <data name="Recognized" xml:space="preserve">
-        <value>Распознано</value>
+        <value>Recognized</value>
     </data>
     <data name="AddWord" xml:space="preserve">
-        <value>Добавить слово</value>
+        <value>Add word</value>
     </data>
     <data name="WordTiming" xml:space="preserve">
-        <value>Тайминги</value>
+        <value>Timing</value>
     </data>
     <data name="SearchSeries" xml:space="preserve">
-        <value>Поиск серий</value>
+        <value>Search series</value>
     </data>
     <data name="Series" xml:space="preserve">
-        <value>Серии</value>
+        <value>Series</value>
     </data>
     <data name="ToggleOn" xml:space="preserve">
-        <value>Вкл</value>
+        <value>On</value>
     </data>
     <data name="ToggleOff" xml:space="preserve">
-        <value>Выкл</value>
+        <value>Off</value>
     </data>
     <data name="TimeWatermark" xml:space="preserve">
-        <value>мм:сс.мс</value>
+        <value>mm:ss.ms</value>
     </data>
     <data name="OverlapsWithWords" xml:space="preserve">
-        <value>Обнаружены пересечения со словами</value>
+        <value>Overlaps with words were found</value>
     </data>
     <data name="RecognitionOverlapsPartialAdded" xml:space="preserve">
-        <value>Найдены пересечения, добавлена только часть слов.</value>
+        <value>Overlaps were found, only some words were added.</value>
     </data>
     <data name="RecognitionOverlapsNothingAdded" xml:space="preserve">
-        <value>Найдены пересечения, новые слова не добавлены.</value>
+        <value>Overlaps were found, no new words were added.</value>
     </data>
     <data name="SpeechModelNotFound" xml:space="preserve">
-        <value>Модель распознавания речи не найдена, распознавание невозможно. Проверьте наличие папки в</value>
+        <value>Speech recognition model was not found, recognition is unavailable. Check that the folder exists at</value>
     </data>
     <data name="AudioProcessing" xml:space="preserve">
-        <value>Поиск слов в аудио</value>
+        <value>Searching words in audio</value>
     </data>
     <data name="Recognize" xml:space="preserve">
-        <value>Распознать</value>
+        <value>Recognize</value>
     </data>
     <data name="StopRecognitionConfirmation" xml:space="preserve">
-        <value>Остановить распознавание?</value>
+        <value>Stop recognition?</value>
     </data>
     <data name="StopRecognition" xml:space="preserve">
-        <value>Остановить</value>
+        <value>Stop</value>
     </data>
     <data name="ContinueRecognition" xml:space="preserve">
-        <value>Продолжить</value>
+        <value>Continue</value>
     </data>
     <data name="RecognitionCanceled" xml:space="preserve">
-        <value>Распознавание отменено</value>
+        <value>Recognition canceled</value>
     </data>
     <data name="ModelInitError" xml:space="preserve">
-        <value>Ошибка инициализации модели</value>
+        <value>Model initialization error</value>
     </data>
     <data name="FileSaveError" xml:space="preserve">
-        <value>Ошибка сохранения файла</value>
+        <value>File save error</value>
     </data>
     <data name="ExportDialogTitle" xml:space="preserve">
-        <value>Сохранить разметку</value>
+        <value>Save markup</value>
     </data>
     <data name="DefaultSuggestedFileName" xml:space="preserve">
         <value>speech_markup</value>
     </data>
     <data name="ExportSuccess" xml:space="preserve">
-        <value>Файл успешно создан</value>
+        <value>File created successfully</value>
     </data>
     <data name="File" xml:space="preserve">
-        <value>Файл</value>
+        <value>File</value>
     </data>
     <data name="ExportError" xml:space="preserve">
-        <value>Ошибка экспорта</value>
+        <value>Export error</value>
     </data>
     <data name="NothingToExport" xml:space="preserve">
-        <value>Нет данных для экспорта</value>
+        <value>No data to export</value>
     </data>
     <data name="Success" xml:space="preserve">
-        <value>Успех</value>
+        <value>Success</value>
     </data>
     <data name="Warning" xml:space="preserve">
-        <value>Предупреждение</value>
+        <value>Warning</value>
     </data>
     <data name="Ok" xml:space="preserve">
-        <value>Ок</value>
+        <value>OK</value>
     </data>
     <data name="ImportMarkup" xml:space="preserve">
-        <value>Импорт разметки</value>
+        <value>Import markup</value>
     </data>
     <data name="ExportMarkup" xml:space="preserve">
-        <value>Экспорт разметки</value>
+        <value>Export markup</value>
     </data>
     <data name="SelectRecognitionModel" xml:space="preserve">
-        <value>Выбрать модель распознавания</value>
+        <value>Select recognition model</value>
     </data>
     <data name="SeriesTitleFormat" xml:space="preserve">
-        <value>Серия {0}</value>
+        <value>Series {0}</value>
     </data>
     <data name="ModelSettingsTitle" xml:space="preserve">
-        <value>Настройки моделей</value>
+        <value>Model settings</value>
     </data>
     <data name="RecognitionModels" xml:space="preserve">
-        <value>Модели распознавания</value>
+        <value>Recognition models</value>
     </data>
     <data name="AvailableModels" xml:space="preserve">
-        <value>Доступные модели</value>
+        <value>Available models</value>
     </data>
     <data name="CurrentModel" xml:space="preserve">
-        <value>Текущая</value>
+        <value>Current</value>
     </data>
     <data name="SetCurrentModel" xml:space="preserve">
-        <value>Сделать текущей</value>
+        <value>Set current</value>
     </data>
     <data name="AddModel" xml:space="preserve">
-        <value>Добавить модель</value>
+        <value>Add model</value>
     </data>
     <data name="Type" xml:space="preserve">
-        <value>Тип</value>
+        <value>Type</value>
     </data>
     <data name="Name" xml:space="preserve">
-        <value>Название</value>
+        <value>Name</value>
     </data>
     <data name="ModelPath" xml:space="preserve">
-        <value>Путь к модели</value>
+        <value>Model path</value>
     </data>
     <data name="SelectFolder" xml:space="preserve">
-        <value>Выбрать папку</value>
+        <value>Select folder</value>
     </data>
     <data name="Close" xml:space="preserve">
-        <value>Закрыть</value>
+        <value>Close</value>
     </data>
     <data name="VoskModelName" xml:space="preserve">
         <value>Vosk(small)</value>
@@ -220,34 +219,34 @@
         <value>Vosk</value>
     </data>
     <data name="SelectVoskModelFolder" xml:space="preserve">
-        <value>Выберите папку модели Vosk</value>
+        <value>Select the Vosk model folder</value>
     </data>
     <data name="SpecifyModelNameAndPath" xml:space="preserve">
-        <value>Укажите название и путь к модели.</value>
+        <value>Specify the model name and path.</value>
     </data>
     <data name="ModelPathDoesNotExist" xml:space="preserve">
-        <value>Указанный путь к модели не существует.</value>
+        <value>The specified model path does not exist.</value>
     </data>
     <data name="DeleteWordLeftChannelFormat" xml:space="preserve">
-        <value>Удалить слово '{0}' из левого канала?</value>
+        <value>Delete the word '{0}' from the left channel?</value>
     </data>
     <data name="DeleteWordRightChannelFormat" xml:space="preserve">
-        <value>Удалить слово '{0}' из правого канала?</value>
+        <value>Delete the word '{0}' from the right channel?</value>
     </data>
     <data name="Delete" xml:space="preserve">
-        <value>Удалить</value>
+        <value>Delete</value>
     </data>
     <data name="ImportMarkupDialogTitle" xml:space="preserve">
-        <value>Импорт разметки</value>
+        <value>Import markup</value>
     </data>
     <data name="JsonFilesFilter" xml:space="preserve">
         <value>JSON Files (*.json)|*.json</value>
     </data>
     <data name="InvalidMarkupFileFormat" xml:space="preserve">
-        <value>Файл разметки пустой или имеет неверный формат.</value>
+        <value>The markup file is empty or has an invalid format.</value>
     </data>
     <data name="ImportMarkupFailedFormat" xml:space="preserve">
-        <value>Не удалось импортировать разметку: {0}</value>
+        <value>Failed to import markup: {0}</value>
     </data>
     <data name="LeftChannelShort" xml:space="preserve">
         <value>L</value>
@@ -262,102 +261,102 @@
         <value>ru</value>
     </data>
     <data name="DeleteModel" xml:space="preserve">
-        <value>Удалить модель</value>
+        <value>Delete model</value>
     </data>
     <data name="DeleteModelConfirmationFormat" xml:space="preserve">
-        <value>Удалить модель '{0}'?</value>
+        <value>Delete model '{0}'?</value>
     </data>
     <data name="OpenHistory" xml:space="preserve">
-        <value>Открыть историю</value>
+        <value>Open history</value>
     </data>
     <data name="SaveToHistory" xml:space="preserve">
-        <value>Сохранить в историю</value>
+        <value>Save to history</value>
     </data>
     <data name="MarkupHistoryTitle" xml:space="preserve">
-        <value>История разметок</value>
+        <value>Markup history</value>
     </data>
     <data name="MarkupHistoryHint" xml:space="preserve">
-        <value>История записей разметки, сохранённые в базе данных.</value>
+        <value>History of markup entries saved in the database.</value>
     </data>
     <data name="CurrentAudioFile" xml:space="preserve">
-        <value>Текущий аудиофайл</value>
+        <value>Current audio file</value>
     </data>
     <data name="SelectAudioFilePathTooltip" xml:space="preserve">
-        <value>Выбрать путь до аудиофайла</value>
+        <value>Select audio file path</value>
     </data>
     <data name="RecognitionCompleted" xml:space="preserve">
-        <value>Распознавание завершено</value>
+        <value>Recognition completed</value>
     </data>
     <data name="RestartRecognitionTooltip" xml:space="preserve">
-        <value>Повторить автоматическое распознавание</value>
+        <value>Repeat automatic recognition</value>
     </data>
     <data name="RebuildSeriesTooltip" xml:space="preserve">
-        <value>Пересчитать серии</value>
+        <value>Rebuild series</value>
     </data>
     <data name="RebuildSeriesImpossibleDueToOverlaps" xml:space="preserve">
-        <value>Пересчёт серий невозможен: найдены пересекающиеся слова.</value>
+        <value>Cannot rebuild series: overlapping words were found.</value>
     </data>
     <data name="Refresh" xml:space="preserve">
-        <value>Обновить</value>
+        <value>Refresh</value>
     </data>
     <data name="Source" xml:space="preserve">
-        <value>Источник</value>
+        <value>Source</value>
     </data>
     <data name="CreatedAt" xml:space="preserve">
-        <value>Создано</value>
+        <value>Created</value>
     </data>
     <data name="Open" xml:space="preserve">
-        <value>Открыть</value>
+        <value>Open</value>
     </data>
     <data name="NothingToSaveToHistory" xml:space="preserve">
-        <value>Нет разметки для сохранения в историю.</value>
+        <value>No markup to save to history.</value>
     </data>
     <data name="MarkupSavedToHistory" xml:space="preserve">
-        <value>Разметка сохранена в историю.</value>
+        <value>Markup was saved to history.</value>
     </data>
     <data name="SaveDespiteOverlaps" xml:space="preserve">
-        <value>Сохранить несмотря на пересечения</value>
+        <value>Save despite overlaps</value>
     </data>
     <data name="RebuildSeriesBeforeSaveFailed" xml:space="preserve">
-        <value>Не удалось пересчитать серии перед сохранением из-за пересечений.</value>
+        <value>Failed to rebuild series before saving because overlaps were found.</value>
     </data>
     <data name="SaveAnywayQuestion" xml:space="preserve">
-        <value>Сохранить разметку без пересчёта серий?</value>
+        <value>Save markup without rebuilding series?</value>
     </data>
     <data name="LeftChannelLabel" xml:space="preserve">
-        <value>Левый канал</value>
+        <value>Left channel</value>
     </data>
     <data name="RightChannelLabel" xml:space="preserve">
-        <value>Правый канал</value>
+        <value>Right channel</value>
     </data>
     <data name="HistoryEntryNotFound" xml:space="preserve">
-        <value>Выбранная запись истории не найдена.</value>
+        <value>The selected history entry was not found.</value>
     </data>
     <data name="DeleteHistoryEntryConfirmationFormat" xml:space="preserve">
-        <value>Удалить запись истории '{0}'?</value>
+        <value>Delete the history entry '{0}'?</value>
     </data>
     <data name="ClearHistory" xml:space="preserve">
-        <value>Очистить историю</value>
+        <value>Clear history</value>
     </data>
     <data name="ClearHistoryConfirmation" xml:space="preserve">
-        <value>Очистить всю историю разметок?</value>
+        <value>Clear the entire markup history?</value>
     </data>
     <data name="SettingsTitle" xml:space="preserve">
-        <value>Настройки</value>
+        <value>Settings</value>
     </data>
     <data name="InterfaceLanguage" xml:space="preserve">
-        <value>Язык интерфейса</value>
+        <value>Interface language</value>
     </data>
     <data name="Language" xml:space="preserve">
-        <value>Язык</value>
+        <value>Language</value>
     </data>
     <data name="Apply" xml:space="preserve">
-        <value>Применить</value>
+        <value>Apply</value>
     </data>
     <data name="LanguageChangedRestartRequired" xml:space="preserve">
-        <value>Язык сохранён. Для полного применения перезапустите приложение.</value>
+        <value>Language saved. Restart the application to fully apply the change.</value>
     </data>
     <data name="TimeStampMask" xml:space="preserve">
-        <value>00:00/000</value>
+        <value>00:00.000</value>
     </data>
 </root>

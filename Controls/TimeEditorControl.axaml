@@ -1,17 +1,17 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:SpeechMarkupEditor.Assets"
              x:Class="SpeechMarkupEditor.Controls.TimeEditorControl">
     <DataValidationErrors>
-        <StackPanel Orientation="Horizontal"
-                    Spacing="6">
-                <MaskedTextBox x:Name="TimeTextBox"
-                               Mask="00:00/000"
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="6">
+                <MaskedTextBox Grid.Column="0" x:Name="TimeTextBox"
+                               Mask="{x:Static res:Resources.TimeStampMask}"
                                PromptChar="0"
-                               TextChanged="OnTimeTextChanged"
                                GotFocus="OnTimeTextBoxGotFocus"
                                LostFocus="OnTimeTextBoxLostFocus"/>
 
-            <StackPanel Orientation="Horizontal"
+            <StackPanel Grid.Column="1" Orientation="Horizontal"
                         Spacing="2"
                         Margin="0">
                 <Button Content="+"
@@ -27,6 +27,6 @@
                         VerticalContentAlignment="Center"
                         Click="OnDecrement"/>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </DataValidationErrors>
 </UserControl>
