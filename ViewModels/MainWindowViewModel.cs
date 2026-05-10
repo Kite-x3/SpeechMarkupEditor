@@ -646,7 +646,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task<bool> PrepareMarkupForSaveAsync()
     {
-        var overlapMessage = BuildSaveOverlapMessage();
+        string? overlapMessage = BuildSaveOverlapMessage();
         if (!string.IsNullOrWhiteSpace(overlapMessage))
         {
             return await _dialogService.ShowConfirmationAsync(
@@ -665,8 +665,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private string? BuildSaveOverlapMessage()
     {
-        var leftOverlapWarning = _wordSeriesService.GetOverlapWarning(LeftSeries);
-        var rightOverlapWarning = _wordSeriesService.GetOverlapWarning(RightSeries);
+        string? leftOverlapWarning = _wordSeriesService.GetOverlapWarning(LeftSeries);
+        string? rightOverlapWarning = _wordSeriesService.GetOverlapWarning(RightSeries);
 
         if (string.IsNullOrWhiteSpace(leftOverlapWarning) && string.IsNullOrWhiteSpace(rightOverlapWarning))
             return null;
@@ -707,14 +707,14 @@ public partial class MainWindowViewModel : ViewModelBase
         if (LeftSeries.Count == 0 && RightSeries.Count == 0)
             return;
 
-        var leftOverlapWarning = _wordSeriesService.GetOverlapWarning(LeftSeries);
+        string? leftOverlapWarning = _wordSeriesService.GetOverlapWarning(LeftSeries);
         if (!string.IsNullOrWhiteSpace(leftOverlapWarning))
         {
             await _dialogService.ShowWarningAsync(leftOverlapWarning);
             return;
         }
 
-        var rightOverlapWarning = _wordSeriesService.GetOverlapWarning(RightSeries);
+        string? rightOverlapWarning = _wordSeriesService.GetOverlapWarning(RightSeries);
         if (!string.IsNullOrWhiteSpace(rightOverlapWarning))
         {
             await _dialogService.ShowWarningAsync(rightOverlapWarning);
@@ -740,7 +740,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (left.Count != right.Count)
             return false;
 
-        for (var i = 0; i < left.Count; i++)
+        for (int i = 0; i < left.Count; i++)
         {
             var leftWords = left[i].Words;
             var rightWords = right[i].Words;
@@ -748,7 +748,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (leftWords.Count != rightWords.Count)
                 return false;
 
-            for (var j = 0; j < leftWords.Count; j++)
+            for (int j = 0; j < leftWords.Count; j++)
             {
                 var l = leftWords[j];
                 var r = rightWords[j];
