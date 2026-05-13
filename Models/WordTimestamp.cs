@@ -15,13 +15,19 @@ public class WordTimestamp : IComparable<WordTimestamp>, INotifyPropertyChanged
     private double _startTime;
     private double _endTime;
     private string _word;
+    private bool _isPlaying;
+    private EarType _channel;
 
     public bool RangeWasAutoCorrected { get; private set; }
     public string? LastRangeCorrectionMessage { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public WordTimestamp(string word, double startTime, double endTime)
+    public WordTimestamp(
+        string word,
+        double startTime,
+        double endTime,
+        EarType channel = EarType.NonDichotic)
     {
         ValidateWord(word);
         ValidateNonNegative(startTime, nameof(startTime), Resources.NegativeStartTime);
@@ -32,6 +38,33 @@ public class WordTimestamp : IComparable<WordTimestamp>, INotifyPropertyChanged
         _endTime = endTime;
         RangeWasAutoCorrected = false;
         LastRangeCorrectionMessage = null;
+        _channel = channel;
+    }
+
+    public EarType Channel
+    {
+        get => _channel;
+        set
+        {
+            if (_channel == value)
+                return;
+
+            _channel = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsPlaying
+    {
+        get => _isPlaying;
+        set
+        {
+            if (_isPlaying == value)
+                return;
+
+            _isPlaying = value;
+            OnPropertyChanged();
+        }
     }
 
     public string Word

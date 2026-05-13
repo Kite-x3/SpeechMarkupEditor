@@ -3,6 +3,7 @@
 using System;
 using System.Threading.Tasks;
 using SpeechMarkupEditor.Infrastructure.Audio;
+using SpeechMarkupEditor.Models;
 
 namespace SpeechMarkupEditor.Services.Audio;
 
@@ -10,6 +11,7 @@ public interface IAudioService
 {
     bool IsPlaying { get; }
     Task Initialize(IAudioSourceProvider SourceProvider);
+    void PlaySegment(WordTimestamp word);
     void PlayOrPause();
     void Stop();
     void SetVolume(double volume);

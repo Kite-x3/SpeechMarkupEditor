@@ -139,7 +139,8 @@ public class MarkupHistoryService : IMarkupHistoryService
             {
                 Word = word.Word,
                 StartTime = word.StartTime,
-                EndTime = word.EndTime
+                EndTime = word.EndTime,
+                Channel = word.Channel
             }).ToList()
         }).ToList();
     }
@@ -150,12 +151,12 @@ public class MarkupHistoryService : IMarkupHistoryService
         if (source == null)
             return result;
 
-        for (var i = 0; i < source.Count; i++)
+        for (int i = 0; i < source.Count; i++)
         {
             var series = new Series { SeriesNumber = i + 1 };
             foreach (var word in source[i].Words.OrderBy(x => x.StartTime).ThenBy(x => x.Word, StringComparer.Ordinal))
             {
-                series.AddWord(new WordTimestamp(word.Word ?? string.Empty, word.StartTime, word.EndTime));
+                series.AddWord(new WordTimestamp(word.Word ?? string.Empty, word.StartTime, word.EndTime, word.Channel));
             }
 
             if (series.Words.Count > 0)
@@ -205,5 +206,6 @@ public class MarkupHistoryService : IMarkupHistoryService
         public string? Word { get; set; }
         public double StartTime { get; set; }
         public double EndTime { get; set; }
+        public EarType Channel { get; set; }
     }
 }

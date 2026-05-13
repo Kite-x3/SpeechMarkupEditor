@@ -171,37 +171,57 @@ public partial class MainWindowViewModel : ViewModelBase
         _isLanguageSelectionInitialized = true;
     }
 
-    /// <summary>
-    /// Обработчик обновления текущей позиции воспроизведения
-    /// </summary>
-    /// <param name="sender">Источник события</param>
-    /// <param name="position">Текущая позиция в секундах</param>
-    private void OnPlaybackPositionUpdated(object? sender, double position)
+    private static void RestartApplication()
     {
-        CurrentTimeSeconds = position;
-    }
+        string? processPath = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(processPath))
+            return;
 
-    /// <summary>
-    /// Обработчик изменения общей длительности трека
-    /// </summary>
-    /// <param name="sender">Источник события</param>
-    /// <param name="totalTime">Общая длительность в секундах</param>
-    private void OnTotalTimeChanged(object? sender, double totalTime)
-    {
-        TotalTimeSeconds = totalTime;
-    }
-
-    /// <summary>
-    /// Обработчик изменения состояния воспроизведения
-    /// </summary>
-    /// <param name="sender">Источник события</param>
-    /// <param name="isPlaying">Флаг активности воспроизведения</param>
-    private void OnPlaybackStateChanged(object? sender, bool isPlaying)
-    {
-        if (_audioService != null)
+        Process.Start(new ProcessStartInfo
         {
-            IsPlaying = isPlaying;
+            FileName = processPath,
+            WorkingDirectory = AppContext.BaseDirectory,
+            UseShellExecute = true
+        });
+
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.Shutdown();
+    }
+
+
+    private static bool AreSeriesCollectionsEqual(IReadOnlyList<Series> left, IReadOnlyList<Series> right)
+    {
+        if (left.Count == 0 && right.Count == 0)
+            return false;
+
+        if (left.Count != right.Count)
+            return false;
+
+        for (int i = 0; i < left.Count; i++)
+        {
+            var leftWords = left[i].Words;
+            var rightWords = right[i].Words;
+
+            if (leftWords.Count != rightWords.Count)
+                return false;
+
+            for (int j = 0; j < leftWords.Count; j++)
+            {
+                var l = leftWords[j];
+                var r = rightWords[j];
+
+                if (!string.Equals(l.Word, r.Word, StringComparison.Ordinal))
+                    return false;
+
+                if (Math.Abs(l.StartTime - r.StartTime) > 0.001)
+                    return false;
+
+                if (Math.Abs(l.EndTime - r.EndTime) > 0.001)
+                    return false;
+            }
         }
+
+        return true;
     }
 
     /// <summary>
@@ -261,46 +281,6 @@ public partial class MainWindowViewModel : ViewModelBase
         HasAudioLoaded = true;
         await _visualizationService.UpdateVisualizationAsync(source);
         await RunRecognitionAsync(source);
-    }
-
-    /// <summary>
-    /// Инициализирует аудио сервис с указанным источником
-    /// </summary>
-    /// <param name="sourceProvider">Источник аудиоданных</param>
-    private async Task InitializeAudioService(IAudioSourceProvider sourceProvider)
-    {
-        CleanupAudioService();
-
-        _audioService = _audioServiceScope.ServiceProvider.GetRequiredService<IAudioService>();
-        _audioService.PlaybackPositionUpdated += OnPlaybackPositionUpdated;
-        _audioService.TotalTimeChanged += OnTotalTimeChanged;
-        _audioService.PlaybackStateChanged += OnPlaybackStateChanged;
-        await _audioService.Initialize(sourceProvider);
-        _audioService.SetVolume(Volume);
-        CurrentTimeSeconds = 0;
-        IsPlaying = false;
-        HasAudioLoaded = true;
-        IsStereoAudio = _audioService.IsStereoAudio;
-        IsLeftChannelActive =  _audioService.IsLeftChannelActive;
-        IsRightChannelActive = _audioService.IsRightChannelActive;
-    }
-
-    /// <summary>
-    /// Очищает текущий аудио сервис и освобождает ресурсы
-    /// </summary>
-    private void CleanupAudioService()
-    {
-        if (_audioService is null)
-            return;
-
-        _audioService.PlaybackPositionUpdated -= OnPlaybackPositionUpdated;
-        _audioService.TotalTimeChanged -= OnTotalTimeChanged;
-        _audioService.PlaybackStateChanged -= OnPlaybackStateChanged;
-
-        _audioService.Dispose();
-        _audioService = null;
-        HasAudioLoaded = false;
-
     }
 
     [RelayCommand]
@@ -408,64 +388,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _ = ApplyLanguageInternalAsync(value.Code);
     }
 
-    private async Task ApplyLanguageInternalAsync(string languageCode)
-    {
-        _recognitionCts?.Cancel();
-        await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
-        await _localizationService.SetLanguageAsync(languageCode);
-        RestartApplication();
-    }
-
-    private async Task RunRecognitionAsync(IAudioSourceProvider source)
-    {
-        _recognitionCts?.Cancel();
-        _recognitionCts?.Dispose();
-        _recognitionCts = new CancellationTokenSource();
-
-        var cancellationToken = _recognitionCts.Token;
-        IsProcessingAudio = true;
-
-        try
-        {
-            var recognitionResult = await _speechRecognitionService
-                .RecognizeAsync(source, cancellationToken);
-
-            if (cancellationToken.IsCancellationRequested)
-                return;
-
-            var mergeResult = new RecognitionMergeResult();
-            mergeResult.Accumulate(_wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries));
-            mergeResult.Accumulate(_wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries));
-            UpdateRecognitionPresentationMode();
-
-            if (mergeResult.HasAddedWords)
-                ScheduleHistorySave();
-
-            if (mergeResult.HasOverlaps)
-            {
-                string? warningMessage = mergeResult.HasAddedWords
-                    ? Resources.RecognitionOverlapsPartialAdded
-                    : Resources.RecognitionOverlapsNothingAdded;
-                await _dialogService.ShowWarningAsync(warningMessage);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Cancellation is expected and confirmed by user.
-        }
-        catch (Exception ex)
-        {
-            await _dialogService.ShowErrorAsync($"{Resources.Error}: {ex.Message}");
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.WriteLine($"Error: {ex.Message}");
-        }
-        finally
-        {
-            IsProcessingAudio = false;
-            UpdateRecognitionPresentationMode();
-        }
-    }
-
     /// <summary>
     /// Команда переключения воспроизведения/паузы
     /// </summary>
@@ -500,31 +422,10 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    /// <summary>
-    /// Добавление нового маркера слова
-    /// </summary>
-    /// <param name="marker">Маркер слова</param>
-    private void AddWordToCollection(WordMarkerSubmittedEventArgs marker)
+    [RelayCommand]
+    private void PlayWordSegment(WordTimestamp word)
     {
-        var word = new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime);
-
-        switch (marker.EarType)
-        {
-            case EarType.Left:
-                _wordSeriesService.AddWordToSeries(LeftSeries, word);
-                break;
-
-            case EarType.Right:
-                _wordSeriesService.AddWordToSeries(RightSeries, word);
-                break;
-
-            case EarType.NonDichotic:
-                _wordSeriesService.AddWordToSeries(LeftSeries, word);
-                _wordSeriesService.AddWordToSeries(RightSeries, word);
-                break;
-        }
-
-        UpdateRecognitionPresentationMode();
+        _audioService?.PlaySegment(word);
     }
 
     [RelayCommand]
@@ -732,41 +633,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _markupHistoryAutoSaveService.ScheduleSave(SelectedFileName, LeftSeries, RightSeries, _fullFilePath);
     }
 
-    private static bool AreSeriesCollectionsEqual(IReadOnlyList<Series> left, IReadOnlyList<Series> right)
-    {
-        if (left.Count == 0 && right.Count == 0)
-            return false;
-
-        if (left.Count != right.Count)
-            return false;
-
-        for (int i = 0; i < left.Count; i++)
-        {
-            var leftWords = left[i].Words;
-            var rightWords = right[i].Words;
-
-            if (leftWords.Count != rightWords.Count)
-                return false;
-
-            for (int j = 0; j < leftWords.Count; j++)
-            {
-                var l = leftWords[j];
-                var r = rightWords[j];
-
-                if (!string.Equals(l.Word, r.Word, StringComparison.Ordinal))
-                    return false;
-
-                if (Math.Abs(l.StartTime - r.StartTime) > 0.001)
-                    return false;
-
-                if (Math.Abs(l.EndTime - r.EndTime) > 0.001)
-                    return false;
-            }
-        }
-
-        return true;
-    }
-
     /// <summary>
     /// Команда включения/выключения левого канала
     /// </summary>
@@ -793,6 +659,136 @@ public partial class MainWindowViewModel : ViewModelBase
         IsRightChannelActive = _audioService.IsRightChannelActive;
     }
 
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _markupHistoryAutoSaveService.CancelPendingSave();
+        CleanupAudioService();
+        _audioServiceScope.Dispose();
+        _disposed = true;
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Добавление нового маркера слова
+    /// </summary>
+    /// <param name="marker">Маркер слова</param>
+    private void AddWordToCollection(WordMarkerSubmittedEventArgs marker)
+    {
+        bool addToLeft = marker.EarType == EarType.Left || marker.EarType == EarType.NonDichotic;
+        bool addToRight = marker.EarType == EarType.Right || marker.EarType == EarType.NonDichotic;
+
+        if (addToLeft)
+        {
+            _wordSeriesService.AddWordToSeries(LeftSeries,
+                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Left));
+        }
+
+        if (addToRight)
+        {
+            _wordSeriesService.AddWordToSeries(RightSeries,
+                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Right));
+        }
+
+        UpdateRecognitionPresentationMode();
+    }
+
+    /// <summary>
+    /// Обработчик обновления текущей позиции воспроизведения
+    /// </summary>
+    /// <param name="sender">Источник события</param>
+    /// <param name="position">Текущая позиция в секундах</param>
+    private void OnPlaybackPositionUpdated(object? sender, double position)
+    {
+        CurrentTimeSeconds = position;
+    }
+
+    /// <summary>
+    /// Обработчик изменения общей длительности трека
+    /// </summary>
+    /// <param name="sender">Источник события</param>
+    /// <param name="totalTime">Общая длительность в секундах</param>
+    private void OnTotalTimeChanged(object? sender, double totalTime)
+    {
+        TotalTimeSeconds = totalTime;
+    }
+
+    /// <summary>
+    /// Обработчик изменения состояния воспроизведения
+    /// </summary>
+    /// <param name="sender">Источник события</param>
+    /// <param name="isPlaying">Флаг активности воспроизведения</param>
+    private void OnPlaybackStateChanged(object? sender, bool isPlaying)
+    {
+        if (_audioService != null)
+        {
+            IsPlaying = isPlaying;
+        }
+    }
+
+
+    private async Task RunRecognitionAsync(IAudioSourceProvider source)
+    {
+        _recognitionCts?.Cancel();
+        _recognitionCts?.Dispose();
+        _recognitionCts = new CancellationTokenSource();
+
+        var cancellationToken = _recognitionCts.Token;
+        IsProcessingAudio = true;
+
+        try
+        {
+            var recognitionResult = await _speechRecognitionService
+                .RecognizeAsync(source, cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            var mergeResult = new RecognitionMergeResult();
+            mergeResult.Accumulate(_wordSeriesService.MergeRecognitionResult(LeftSeries, recognitionResult.LeftChannelSeries));
+            mergeResult.Accumulate(_wordSeriesService.MergeRecognitionResult(RightSeries, recognitionResult.RightChannelSeries));
+            UpdateRecognitionPresentationMode();
+
+            if (mergeResult.HasAddedWords)
+                ScheduleHistorySave();
+
+            if (mergeResult.HasOverlaps)
+            {
+                string? warningMessage = mergeResult.HasAddedWords
+                    ? Resources.RecognitionOverlapsPartialAdded
+                    : Resources.RecognitionOverlapsNothingAdded;
+                await _dialogService.ShowWarningAsync(warningMessage);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Cancellation is expected and confirmed by user.
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorAsync($"{Resources.Error}: {ex.Message}");
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            IsProcessingAudio = false;
+            UpdateRecognitionPresentationMode();
+        }
+    }
+
+
+    private async Task ApplyLanguageInternalAsync(string languageCode)
+    {
+        _recognitionCts?.Cancel();
+        await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
+        await _localizationService.SetLanguageAsync(languageCode);
+        RestartApplication();
+    }
+
+
     private async Task LoadAudioAsync(string path)
     {
         var source = _sourceProviderFactory.CreateSourceFromPath(path);
@@ -812,33 +808,43 @@ public partial class MainWindowViewModel : ViewModelBase
         await _visualizationService.UpdateVisualizationAsync(source);
     }
 
-    public void Dispose()
+    /// <summary>
+    /// Инициализирует аудио сервис с указанным источником
+    /// </summary>
+    /// <param name="sourceProvider">Источник аудиоданных</param>
+    private async Task InitializeAudioService(IAudioSourceProvider sourceProvider)
     {
-        if (_disposed)
-            return;
-
-        _markupHistoryAutoSaveService.CancelPendingSave();
         CleanupAudioService();
-        _audioServiceScope.Dispose();
-        _disposed = true;
-        GC.SuppressFinalize(this);
+
+        _audioService = _audioServiceScope.ServiceProvider.GetRequiredService<IAudioService>();
+        _audioService.PlaybackPositionUpdated += OnPlaybackPositionUpdated;
+        _audioService.TotalTimeChanged += OnTotalTimeChanged;
+        _audioService.PlaybackStateChanged += OnPlaybackStateChanged;
+        await _audioService.Initialize(sourceProvider);
+        _audioService.SetVolume(Volume);
+        CurrentTimeSeconds = 0;
+        IsPlaying = false;
+        HasAudioLoaded = true;
+        IsStereoAudio = _audioService.IsStereoAudio;
+        IsLeftChannelActive =  _audioService.IsLeftChannelActive;
+        IsRightChannelActive = _audioService.IsRightChannelActive;
     }
 
-    private static void RestartApplication()
+    /// <summary>
+    /// Очищает текущий аудио сервис и освобождает ресурсы
+    /// </summary>
+    private void CleanupAudioService()
     {
-        string? processPath = Environment.ProcessPath;
-        if (string.IsNullOrWhiteSpace(processPath))
+        if (_audioService is null)
             return;
 
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = processPath,
-            WorkingDirectory = AppContext.BaseDirectory,
-            UseShellExecute = true
-        });
+        _audioService.PlaybackPositionUpdated -= OnPlaybackPositionUpdated;
+        _audioService.TotalTimeChanged -= OnTotalTimeChanged;
+        _audioService.PlaybackStateChanged -= OnPlaybackStateChanged;
 
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.Shutdown();
+        _audioService.Dispose();
+        _audioService = null;
+        HasAudioLoaded = false;
+
     }
-
 }

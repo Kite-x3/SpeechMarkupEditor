@@ -45,8 +45,8 @@ public class ImportFromJsonService : IImportService
                     ? Path.GetFileNameWithoutExtension(imported.AudioFilePath)
                     : imported.FileName,
                 SourcePath = imported.AudioFilePath,
-                LeftChannel = MapSeries(imported.LeftChannel),
-                RightChannel = MapSeries(imported.RightChannel)
+                LeftChannel = MapSeries(imported.LeftChannel, EarType.Left),
+                RightChannel = MapSeries(imported.RightChannel, EarType.Right)
             };
         }
         catch (Exception ex)
@@ -56,14 +56,16 @@ public class ImportFromJsonService : IImportService
         }
     }
 
-    private static ObservableCollection<Series> MapSeries(List<SeriesDto>? source)
+    private static ObservableCollection<Series> MapSeries(
+        List<SeriesDto>? source,
+        EarType channel)
     {
         var result = new ObservableCollection<Series>();
         if (source == null)
             return result;
 
         var orderedSeries = source
-            .Select(MapSeries)
+            .Select(dto => MapSeries(dto, channel))
             .Where(series => series.Words.Count > 0)
             .OrderBy(series => series.Words[0].StartTime)
             .ToList();
@@ -77,14 +79,16 @@ public class ImportFromJsonService : IImportService
         return result;
     }
 
-    private static Series MapSeries(SeriesDto seriesDto)
+    private static Series MapSeries(
+        SeriesDto seriesDto,
+        EarType channel)
     {
         var series = new Series();
         foreach (var word in (seriesDto.Words ?? [])
                      .OrderBy(word => word.StartTime)
                      .ThenBy(word => word.Word, StringComparer.Ordinal))
         {
-            series.AddWord(new WordTimestamp(word.Word ?? string.Empty, word.StartTime, word.EndTime));
+            series.AddWord(new WordTimestamp(word.Word ?? string.Empty, word.StartTime, word.EndTime, channel));
         }
 
         return series;

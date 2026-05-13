@@ -422,9 +422,27 @@
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <Grid Margin="6,4"
-                                                              ColumnDefinitions="*,Auto,Auto"
+                                                              ColumnDefinitions="40,Auto,*,Auto"
                                                               ColumnSpacing="12">
-                                                            <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                            <Button Grid.Column="0"
+                                                                    Classes="action"
+                                                                    MinWidth="40"
+                                                                    Command="{ReflectionBinding DataContext.PlayWordSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding .}">
+
+                                                                <Grid>
+                                                                    <svg:Svg Path="{x:Static res:AssetPaths.PLAY_SVG_URI}"
+                                                                             Width="14"
+                                                                             Height="14"
+                                                                             IsVisible="{Binding !IsPlaying}"/>
+
+                                                                    <svg:Svg Path="{x:Static res:AssetPaths.PAUSE_SVG_URI}"
+                                                                             Width="14"
+                                                                             Height="14"
+                                                                             IsVisible="{Binding IsPlaying}"/>
+                                                                </Grid>
+                                                            </Button>
+                                                            <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="6">
                                                                 <TextBlock Grid.Column="0"
                                                                            Text="{x:Static res:Resources.Word}"
                                                                            VerticalAlignment="Center"/>
@@ -433,7 +451,7 @@
                                                                          VerticalAlignment="Center"
                                                                          FontWeight="Bold"/>
                                                             </Grid>
-                                                            <Border Grid.Column="1"
+                                                            <Border Grid.Column="2"
                                                                     BorderBrush="#CCC"
                                                                     BorderThickness="1"
                                                                     Padding="6,4"
@@ -460,7 +478,7 @@
                                                                                                 GotFocus="WordTimingEditor_OnGotFocus"/>
                                                                 </Grid>
                                                             </Border>
-                                                            <Button Grid.Column="2"
+                                                            <Button Grid.Column="3"
                                                                     Classes="delete-word"
                                                                     Command="{ReflectionBinding DataContext.RemoveLeftWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding .}"
@@ -488,9 +506,27 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="6,4"
-                                                      ColumnDefinitions="*,Auto,Auto"
+                                                      ColumnDefinitions="40,Auto,*,Auto"
                                                       ColumnSpacing="12">
-                                                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                    <Button Grid.Column="0"
+                                                            Classes="action"
+                                                            MinWidth="40"
+                                                            Command="{ReflectionBinding DataContext.PlayWordSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}">
+
+                                                        <Grid>
+                                                            <svg:Svg Path="{x:Static res:AssetPaths.PLAY_SVG_URI}"
+                                                                     Width="14"
+                                                                     Height="14"
+                                                                     IsVisible="{Binding !IsPlaying}"/>
+
+                                                            <svg:Svg Path="{x:Static res:AssetPaths.PAUSE_SVG_URI}"
+                                                                     Width="14"
+                                                                     Height="14"
+                                                                     IsVisible="{Binding IsPlaying}"/>
+                                                        </Grid>
+                                                    </Button>
+                                                    <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="6">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{x:Static res:Resources.Word}"
                                                                    VerticalAlignment="Center"/>
@@ -499,7 +535,7 @@
                                                                  VerticalAlignment="Center"
                                                                  FontWeight="Bold"/>
                                                     </Grid>
-                                                    <Border Grid.Column="1"
+                                                    <Border Grid.Column="2"
                                                             BorderBrush="#CCC"
                                                             BorderThickness="1"
                                                             Padding="6,4"
@@ -524,7 +560,7 @@
                                                                                             GotFocus="WordTimingEditor_OnGotFocus"/>
                                                         </Grid>
                                                     </Border>
-                                                    <Button Grid.Column="2"
+                                                    <Button Grid.Column="3"
                                                             Classes="delete-word"
                                                             Command="{ReflectionBinding DataContext.RemoveLeftWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding .}"
@@ -566,10 +602,27 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <Grid Margin="6,4"
-                                                                  ColumnDefinitions="*,Auto,Auto"
-                                                                  ColumnSpacing="12"
-                                                                  IsSharedSizeScope="True">
-                                                                <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                                  ColumnDefinitions="40,Auto,*,Auto"
+                                                                  ColumnSpacing="12">
+                                                                <Button Grid.Column="0"
+                                                                        Classes="action"
+                                                                        MinWidth="40"
+                                                                        Command="{ReflectionBinding DataContext.PlayWordSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        CommandParameter="{Binding .}">
+
+                                                                    <Grid>
+                                                                        <svg:Svg Path="{x:Static res:AssetPaths.PLAY_SVG_URI}"
+                                                                                 Width="14"
+                                                                                 Height="14"
+                                                                                 IsVisible="{Binding !IsPlaying}"/>
+
+                                                                        <svg:Svg Path="{x:Static res:AssetPaths.PAUSE_SVG_URI}"
+                                                                                 Width="14"
+                                                                                 Height="14"
+                                                                                 IsVisible="{Binding IsPlaying}"/>
+                                                                    </Grid>
+                                                                </Button>
+                                                                <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="6">
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{x:Static res:Resources.Word}"
                                                                                VerticalAlignment="Center"/>
@@ -578,7 +631,7 @@
                                                                              VerticalAlignment="Center"
                                                                              FontWeight="Bold"/>
                                                                 </Grid>
-                                                                <Border Grid.Column="1"
+                                                                <Border Grid.Column="2"
                                                                         BorderBrush="#CCC"
                                                                         BorderThickness="1"
                                                                         Padding="6,4"
@@ -603,7 +656,7 @@
                                                                                             GotFocus="WordTimingEditor_OnGotFocus"/>
                                                                     </Grid>
                                                                 </Border>
-                                                                <Button Grid.Column="2"
+                                                                <Button Grid.Column="3"
                                                                         Classes="delete-word"
                                                                         Command="{ReflectionBinding DataContext.RemoveRightWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                         CommandParameter="{Binding .}"
@@ -632,9 +685,27 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="6,4"
-                                                      ColumnDefinitions="*,Auto,Auto"
+                                                      ColumnDefinitions="40,Auto,*,Auto"
                                                       ColumnSpacing="12">
-                                                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                                    <Button Grid.Column="0"
+                                                            Classes="action"
+                                                            MinWidth="40"
+                                                            Command="{ReflectionBinding DataContext.PlayWordSegmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding .}">
+
+                                                        <Grid>
+                                                            <svg:Svg Path="{x:Static res:AssetPaths.PLAY_SVG_URI}"
+                                                                     Width="14"
+                                                                     Height="14"
+                                                                     IsVisible="{Binding !IsPlaying}"/>
+
+                                                            <svg:Svg Path="{x:Static res:AssetPaths.PAUSE_SVG_URI}"
+                                                                     Width="14"
+                                                                     Height="14"
+                                                                     IsVisible="{Binding IsPlaying}"/>
+                                                        </Grid>
+                                                    </Button>
+                                                    <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="6">
                                                         <TextBlock Grid.Column="0"
                                                                    Text="{x:Static res:Resources.Word}"
                                                                    VerticalAlignment="Center"/>
@@ -643,7 +714,7 @@
                                                                  VerticalAlignment="Center"
                                                                  FontWeight="Bold"/>
                                                     </Grid>
-                                                    <Border Grid.Column="1"
+                                                    <Border Grid.Column="2"
                                                             BorderBrush="#CCC"
                                                             BorderThickness="1"
                                                             Padding="6,4"
@@ -668,7 +739,7 @@
                                                                                             GotFocus="WordTimingEditor_OnGotFocus"/>
                                                         </Grid>
                                                     </Border>
-                                                    <Button Grid.Column="2"
+                                                    <Button Grid.Column="3"
                                                             Classes="delete-word"
                                                             Command="{ReflectionBinding DataContext.RemoveRightWordCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding .}"

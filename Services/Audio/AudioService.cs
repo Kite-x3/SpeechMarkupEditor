@@ -6,6 +6,7 @@ using NAudio.Wave;
 using System.Threading.Tasks;
 using NAudio.Wave.SampleProviders;
 using SpeechMarkupEditor.Infrastructure.Audio;
+using SpeechMarkupEditor.Models;
 
 namespace SpeechMarkupEditor.Services.Audio;
 
@@ -16,6 +17,13 @@ public class AudioService : IAudioService
     private DispatcherTimer? _playbackTimer;
     private ISampleProvider? _currentProvider;
     private StereoToMonoSampleProvider? _stereoToMono;
+    private DispatcherTimer? _segmentTimer;
+    private double _segmentEndTime;
+    private double _segmentStartTime;
+    private bool _isSegmentMode;
+    private WordTimestamp? _currentSegmentWord;
+    private bool _savedLeftChannelState;
+    private bool _savedRightChannelState;
 
     /// <summary>
     /// Указывает, активен ли левый аудиоканал в данный момент
@@ -89,6 +97,22 @@ public class AudioService : IAudioService
         TotalTimeChanged?.Invoke(this, _audioStream.TotalTime.TotalSeconds);
     }
 
+    public void PlaySegment(WordTimestamp word)
+    {
+        if (_audioStream == null || _outputDevice == null)
+            return;
+
+        if (_isSegmentMode &&
+            Math.Abs(_segmentStartTime - word.StartTime) < 0.01 &&
+            Math.Abs(_segmentEndTime - word.EndTime) < 0.01)
+        {
+            ToggleSegmentPause();
+            return;
+        }
+
+        StartNewSegment(word);
+    }
+
     private float GetChannelVolume(bool active)
         => active ? 1.0f : 0.0f;
 
@@ -97,7 +121,7 @@ public class AudioService : IAudioService
     /// </summary>
     public void ToggleLeftChannel()
     {
-        if (!IsStereoAudio)
+        if (!IsStereoAudio || _isSegmentMode)
             return;
 
         IsLeftChannelActive = !IsLeftChannelActive;
@@ -109,7 +133,7 @@ public class AudioService : IAudioService
     /// </summary>
     public void ToggleRightChannel()
     {
-        if (!IsStereoAudio)
+        if (!IsStereoAudio || _isSegmentMode)
             return;
 
         IsRightChannelActive = !IsRightChannelActive;
@@ -144,7 +168,13 @@ public class AudioService : IAudioService
         if (_audioStream == null || _outputDevice == null)
             return;
 
-        if (IsPlaying)
+        if (_isSegmentMode)
+        {
+            StopSegmentInternal();
+            _playbackTimer?.Start();
+            _outputDevice.Play();
+        }
+        else if (IsPlaying)
         {
             _outputDevice.Stop();
             _playbackTimer?.Stop();
@@ -163,12 +193,17 @@ public class AudioService : IAudioService
     /// </summary>
     public void Stop()
     {
-        if (_outputDevice!= null && IsPlaying)
-            _outputDevice.Stop();
+        if (_isSegmentMode)
+            StopSegmentInternal();
+        else
+        {
+            if (_outputDevice != null && IsPlaying)
+                _outputDevice.Stop();
 
-        _playbackTimer?.Stop();
-        if (_audioStream != null)
-            _audioStream.CurrentTime = TimeSpan.Zero;
+            _playbackTimer?.Stop();
+            if (_audioStream != null)
+                _audioStream.CurrentTime = TimeSpan.Zero;
+        }
 
         PlaybackStateChanged?.Invoke(this, IsPlaying);
         PlaybackPositionUpdated?.Invoke(this, 0);
@@ -209,6 +244,8 @@ public class AudioService : IAudioService
         _outputDevice?.Stop();
         _outputDevice?.Dispose();
         _outputDevice = null;
+        _isSegmentMode = false;
+        _segmentTimer?.Stop();
 
         _audioStream?.Dispose();
         _audioStream = null;
@@ -217,4 +254,146 @@ public class AudioService : IAudioService
         _playbackTimer = null;
     }
 
+    private void SegmentTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_audioStream == null || _outputDevice == null)
+            return;
+
+        double current = _audioStream.CurrentTime.TotalSeconds;
+        PlaybackPositionUpdated?.Invoke(this, current);
+
+        if (current >= _segmentEndTime)
+        {
+            StopSegment();
+        }
+    }
+
+    private void StopSegment()
+    {
+        StopSegmentInternal();
+        if (_audioStream != null)
+            _audioStream.CurrentTime = TimeSpan.FromSeconds(_segmentStartTime);
+
+        PlaybackPositionUpdated?.Invoke(this, _segmentStartTime);
+    }
+
+    private void StopSegmentInternal()
+    {
+        if (_currentSegmentWord != null)
+        {
+            _currentSegmentWord.IsPlaying = false;
+            _currentSegmentWord = null;
+        }
+
+        _segmentTimer?.Stop();
+        if (_outputDevice != null && IsPlaying)
+            _outputDevice.Stop();
+
+        _playbackTimer?.Stop();
+        _isSegmentMode = false;
+
+        RestoreChannelState();
+
+        PlaybackStateChanged?.Invoke(this, false);
+    }
+
+    private void StartNewSegment(WordTimestamp word)
+    {
+        StopSegmentInternal();
+
+        _currentSegmentWord = word;
+        _segmentStartTime = word.StartTime;
+        _segmentEndTime = word.EndTime;
+        _isSegmentMode = true;
+
+        ApplyWordChannel(word);
+        Seek(_segmentStartTime);
+
+        word.IsPlaying = true;
+        _outputDevice?.Play();
+        _playbackTimer?.Start();
+
+        PlaybackStateChanged?.Invoke(this, true);
+
+        StartSegmentTimer();
+    }
+
+    private void ApplyWordChannel(WordTimestamp word)
+    {
+        if (_stereoToMono == null)
+            return;
+
+        _savedLeftChannelState = IsLeftChannelActive;
+        _savedRightChannelState = IsRightChannelActive;
+        bool leftEnabled = false;
+        bool rightEnabled = false;
+
+        switch (word.Channel)
+        {
+            case EarType.Left:
+                leftEnabled = true;
+                break;
+
+            case EarType.Right:
+                rightEnabled = true;
+                break;
+
+            case EarType.NonDichotic:
+            default:
+                leftEnabled = true;
+                rightEnabled = true;
+                break;
+        }
+
+        leftEnabled &= IsLeftChannelActive;
+        rightEnabled &= IsRightChannelActive;
+
+        _stereoToMono.LeftVolume = GetChannelVolume(leftEnabled);
+        _stereoToMono.RightVolume = GetChannelVolume(rightEnabled);
+    }
+
+    private void RestoreChannelState()
+    {
+        if (_stereoToMono == null)
+            return;
+
+        _stereoToMono.LeftVolume = GetChannelVolume(_savedLeftChannelState);
+        _stereoToMono.RightVolume = GetChannelVolume(_savedRightChannelState);
+    }
+
+    private void ToggleSegmentPause()
+    {
+        if (_outputDevice == null)
+            return;
+
+        if (IsPlaying)
+        {
+            _outputDevice.Stop();
+            _playbackTimer?.Stop();
+
+            if (_currentSegmentWord != null)
+                _currentSegmentWord.IsPlaying = false;
+        }
+        else
+        {
+            _outputDevice.Play();
+            _playbackTimer?.Start();
+
+            if (_currentSegmentWord != null)
+                _currentSegmentWord.IsPlaying = true;
+        }
+
+        PlaybackStateChanged?.Invoke(this, IsPlaying);
+    }
+
+    private void StartSegmentTimer()
+    {
+        _segmentTimer?.Stop();
+        _segmentTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(1)
+        };
+        _segmentTimer.Tick += SegmentTimer_Tick;
+        _segmentTimer.Start();
+    }
 }

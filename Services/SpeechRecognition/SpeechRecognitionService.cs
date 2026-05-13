@@ -145,7 +145,7 @@ public class SpeechRecognitionService: ISpeechRecognitionService
                 if (recLeft.AcceptWaveform(buffer, buffer.Length))
                 {
                     string? result = recLeft.Result();
-                    leftWords.AddRange(ExtractWords(result));
+                    leftWords.AddRange(ExtractWords(result, EarType.Left));
                 }
             }
             else
@@ -163,20 +163,20 @@ public class SpeechRecognitionService: ISpeechRecognitionService
                 if (recLeft.AcceptWaveform(leftSamples, leftSamples.Length))
                 {
                     string? result = recLeft.Result();
-                    leftWords.AddRange(ExtractWords(result));
+                    leftWords.AddRange(ExtractWords(result, EarType.Left));
                 }
 
                 if (recRight!.AcceptWaveform(rightSamples, rightSamples.Length))
                 {
                     string? result = recRight.Result();
-                    rightWords.AddRange(ExtractWords(result));
+                    rightWords.AddRange(ExtractWords(result, EarType.Right));
                 }
             }
         }
 
-        leftWords.AddRange(ExtractWords(recLeft.FinalResult()));
+        leftWords.AddRange(ExtractWords(recLeft.FinalResult(), EarType.Left));
         if (recRight!=null)
-            rightWords.AddRange(ExtractWords(recRight.FinalResult()));
+            rightWords.AddRange(ExtractWords(recRight.FinalResult(), EarType.Right));
 
         if (channels == 1)
             rightWords.AddRange(leftWords);
@@ -230,7 +230,7 @@ public class SpeechRecognitionService: ISpeechRecognitionService
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    private List<WordTimestamp> ExtractWords(string json)
+    private List<WordTimestamp> ExtractWords(string json, EarType channel)
     {
         var result = new List<WordTimestamp>();
 
@@ -245,11 +245,16 @@ public class SpeechRecognitionService: ISpeechRecognitionService
 
         foreach (var word in words.AsArray())
         {
+            double start = (double)word["start"];
+            double end = (double)word["end"];
+
+            end += 0.1;
             result.Add(new WordTimestamp
             (
                 word["word"]?.ToString(),
-                (double)word["start"],
-                (double)word["end"]
+                start,
+                end,
+                channel
             ));
         }
 
