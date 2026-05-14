@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using SpeechMarkupEditor.Messages;
 using SpeechMarkupEditor.Models;
 
 namespace SpeechMarkupEditor.Services.WordSeries;
@@ -12,7 +13,7 @@ public interface IWordSeriesService
         ObservableCollection<Series> targetSeries,
         List<Series> newSeriesData);
 
-    void AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word);
+    List<WordTimestamp> AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word);
     void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word);
     string? GetOverlapWarning(ObservableCollection<Series> series);
     void RebuildSeriesCollection(ObservableCollection<Series> series);

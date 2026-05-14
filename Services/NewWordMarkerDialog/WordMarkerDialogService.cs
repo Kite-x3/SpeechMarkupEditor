@@ -27,9 +27,9 @@ public class WordMarkerDialogService : IWordMarkerDialogService
     /// </summary>
     /// <param name="startTime">Стартовое время маркера</param>
     /// <returns></returns>
-    public async Task<WordMarkerSubmittedEventArgs?> ShowAddWordMarkerDialog(double startTime)
+    public async Task<WordMarkerSubmittedEventArgs?> ShowAddWordMarkerDialog(double startTime, WordMarkerSubmittedEventArgs? existingMarker = null)
     {
         return await WeakReferenceMessenger.Default.Send(
-            new WordMarkerDialogRequestMessage(startTime));
+            new WordMarkerDialogRequestMessage(startTime, existingMarker));
     }
 }

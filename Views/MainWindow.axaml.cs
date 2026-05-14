@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
@@ -45,8 +46,20 @@ public partial class MainWindow : Window
                 };
 
                 var vm = (WordMarkerDialogViewModel)dialog.DataContext;
-                vm.StartTime = message.StartTime;
-                vm.EndTime = message.StartTime + 0.5;
+                if (message.ExistingMarker != null)
+                {
+                    vm.Word = message.ExistingMarker.Word;
+                    vm.StartTime = message.ExistingMarker.StartTime;
+                    vm.EndTime = message.ExistingMarker.EndTime;
+                    vm.SelectedEarType = vm.EarTypes
+                            .FirstOrDefault(x => x.Value == message.ExistingMarker.EarType)
+                        ?? vm.EarTypes[0];
+                }
+                else
+                {
+                    vm.StartTime = message.StartTime;
+                    vm.EndTime = message.StartTime + 0.5;
+                }
 
                 var task = new TaskCompletionSource<WordMarkerSubmittedEventArgs?>();
 

@@ -16,7 +16,7 @@ public class AudioService : IAudioService
     private WaveStream? _audioStream;
     private DispatcherTimer? _playbackTimer;
     private ISampleProvider? _currentProvider;
-    private StereoToMonoSampleProvider? _stereoToMono;
+    private StereoChannelSampleProvider? _stereoProvider;
     private DispatcherTimer? _segmentTimer;
     private double _segmentEndTime;
     private double _segmentStartTime;
@@ -72,12 +72,13 @@ public class AudioService : IAudioService
         IsStereoAudio = sampleProvider.WaveFormat.Channels == 2;
         if (IsStereoAudio)
         {
-            _stereoToMono  = new StereoToMonoSampleProvider(sampleProvider)
+            _stereoProvider = new StereoChannelSampleProvider(sampleProvider)
             {
-                LeftVolume = GetChannelVolume(IsLeftChannelActive),
-                RightVolume = GetChannelVolume(IsRightChannelActive)
+                LeftEnabled = IsLeftChannelActive,
+                RightEnabled = IsRightChannelActive
             };
-            _currentProvider = _stereoToMono;
+
+            _currentProvider = _stereoProvider;
         }
         else
         {
@@ -145,18 +146,11 @@ public class AudioService : IAudioService
     /// </summary>
     private void UpdateChannelMix()
     {
-        if (_stereoToMono  == null)
+        if (_stereoProvider == null)
             return;
 
-        bool wasPlaying = IsPlaying;
-        if (wasPlaying)
-            _outputDevice?.Stop();
-
-        _stereoToMono.LeftVolume = GetChannelVolume(IsLeftChannelActive);
-        _stereoToMono.RightVolume = GetChannelVolume(IsRightChannelActive);
-
-        if (wasPlaying)
-            _outputDevice?.Play();
+        _stereoProvider.LeftEnabled = IsLeftChannelActive;
+        _stereoProvider.RightEnabled = IsRightChannelActive;
     }
 
     /// <summary>
@@ -320,7 +314,7 @@ public class AudioService : IAudioService
 
     private void ApplyWordChannel(WordTimestamp word)
     {
-        if (_stereoToMono == null)
+        if (_stereoProvider == null)
             return;
 
         _savedLeftChannelState = IsLeftChannelActive;
@@ -348,17 +342,17 @@ public class AudioService : IAudioService
         leftEnabled &= IsLeftChannelActive;
         rightEnabled &= IsRightChannelActive;
 
-        _stereoToMono.LeftVolume = GetChannelVolume(leftEnabled);
-        _stereoToMono.RightVolume = GetChannelVolume(rightEnabled);
+        _stereoProvider.LeftEnabled = leftEnabled;
+        _stereoProvider.RightEnabled = rightEnabled;
     }
 
     private void RestoreChannelState()
     {
-        if (_stereoToMono == null)
+        if (_stereoProvider == null)
             return;
 
-        _stereoToMono.LeftVolume = GetChannelVolume(_savedLeftChannelState);
-        _stereoToMono.RightVolume = GetChannelVolume(_savedRightChannelState);
+        _stereoProvider.LeftEnabled = _savedLeftChannelState;
+        _stereoProvider.RightEnabled = _savedRightChannelState;
     }
 
     private void ToggleSegmentPause()

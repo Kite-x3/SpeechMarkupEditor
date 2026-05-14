@@ -98,13 +98,17 @@ public class WordSeriesService : IWordSeriesService
     /// </summary>
     /// <param name="series">Серия, в которую добавляют</param>
     /// <param name="word">Слово, которое добавляют</param>
-    public void AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word)
+    public List<WordTimestamp> AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word)
     {
         var tempSeries = new Series();
         tempSeries.AddWord(word);
-        var result = ProcessSeriesWithOverlaps(series, tempSeries, true);
-        if (result.AddedWordsCount > 0)
-            RebuildSeriesCollection(series);
+        var overlappingWords = FindOverlappingWords(series, tempSeries);
+        if (overlappingWords.Count != 0)
+            return overlappingWords;
+
+        AddNonOverlappingSeries(series, tempSeries);
+        RebuildSeriesCollection(series);
+        return overlappingWords;
     }
 
     public void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word)

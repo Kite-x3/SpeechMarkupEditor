@@ -1,8 +1,6 @@
 // Copyright (C) Neurosoft
 
-using System;
 using System.Collections.Generic;
-using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;

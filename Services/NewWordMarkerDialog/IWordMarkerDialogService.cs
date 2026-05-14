@@ -7,5 +7,5 @@ namespace SpeechMarkupEditor.Services.NewWordMarkerDialog;
 
 public interface IWordMarkerDialogService
 {
-    Task<WordMarkerSubmittedEventArgs?> ShowAddWordMarkerDialog(double startTime);
+    Task<WordMarkerSubmittedEventArgs?> ShowAddWordMarkerDialog(double startTime, WordMarkerSubmittedEventArgs? existingMarker = null);
 }

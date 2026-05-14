@@ -413,13 +413,40 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddWordMarker(double position)
     {
-        var marker = await _wordMarkerDialogService.ShowAddWordMarkerDialog(position);
-        if (marker != null)
+        WordMarkerSubmittedEventArgs? marker = null;
+
+        while (true)
         {
-            AddWordToCollection(marker);
-            await _markupHistoryAutoSaveService.FlushPendingSaveAsync();
-            await SaveCurrentMarkupToHistoryInternalAsync(false);
+            marker = await _wordMarkerDialogService.ShowAddWordMarkerDialog(position, marker);
+
+            if (marker == null)
+                return;
+
+            var overlaps = AddWordToCollection(marker);
+
+            if (overlaps.Count == 0)
+                break;
+
+            var builder = new StringBuilder();
+
+            builder.AppendLine(Resources.OverlapsWithWords);
+            builder.AppendLine();
+
+            foreach (var word in overlaps)
+            {
+                builder.AppendLine(
+                    $"- '{word.Word}' " +
+                    $"({word.StartTime:F2}-{word.EndTime:F2})");
+            }
+
+            await _dialogService.ShowWarningAsync(
+                builder.ToString());
         }
+
+        await _markupHistoryAutoSaveService
+            .FlushPendingSaveAsync();
+
+        await SaveCurrentMarkupToHistoryInternalAsync(false);
     }
 
     [RelayCommand]
@@ -675,24 +702,29 @@ public partial class MainWindowViewModel : ViewModelBase
     /// Добавление нового маркера слова
     /// </summary>
     /// <param name="marker">Маркер слова</param>
-    private void AddWordToCollection(WordMarkerSubmittedEventArgs marker)
+    private List<WordTimestamp> AddWordToCollection(WordMarkerSubmittedEventArgs marker)
     {
+        var overlappingWords = new List<WordTimestamp>();
         bool addToLeft = marker.EarType == EarType.Left || marker.EarType == EarType.NonDichotic;
         bool addToRight = marker.EarType == EarType.Right || marker.EarType == EarType.NonDichotic;
 
         if (addToLeft)
         {
-            _wordSeriesService.AddWordToSeries(LeftSeries,
-                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Left));
+            overlappingWords.AddRange(_wordSeriesService.AddWordToSeries(LeftSeries,
+                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Left)));
         }
 
         if (addToRight)
         {
-            _wordSeriesService.AddWordToSeries(RightSeries,
-                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Right));
+            overlappingWords.AddRange(_wordSeriesService.AddWordToSeries(RightSeries,
+                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Right)));
         }
 
         UpdateRecognitionPresentationMode();
+
+        return overlappingWords
+            .Distinct()
+            .ToList();
     }
 
     /// <summary>

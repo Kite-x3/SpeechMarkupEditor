@@ -7,10 +7,13 @@ namespace SpeechMarkupEditor.Messages;
 
 public class WordMarkerDialogRequestMessage : AsyncRequestMessage<WordMarkerSubmittedEventArgs?>
 {
-    public WordMarkerDialogRequestMessage(double startTime)
+    public WordMarkerDialogRequestMessage(double startTime, WordMarkerSubmittedEventArgs? existingMarker = null)
     {
         StartTime = startTime;
+        ExistingMarker = existingMarker;
     }
 
     public double StartTime { get; }
+
+    public WordMarkerSubmittedEventArgs? ExistingMarker { get; }
 }
