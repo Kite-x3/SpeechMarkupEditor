@@ -704,27 +704,41 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <param name="marker">Маркер слова</param>
     private List<WordTimestamp> AddWordToCollection(WordMarkerSubmittedEventArgs marker)
     {
-        var overlappingWords = new List<WordTimestamp>();
-        bool addToLeft = marker.EarType == EarType.Left || marker.EarType == EarType.NonDichotic;
-        bool addToRight = marker.EarType == EarType.Right || marker.EarType == EarType.NonDichotic;
+        var overlaps = new List<WordTimestamp>();
+
+        bool addToLeft = marker.EarType is EarType.Left or EarType.NonDichotic;
+        bool addToRight = marker.EarType is EarType.Right or EarType.NonDichotic;
+
+        var leftWord = new WordTimestamp(
+            marker.Word,
+            marker.StartTime,
+            marker.EndTime,
+            EarType.Left);
+
+        var rightWord = new WordTimestamp(
+            marker.Word,
+            marker.StartTime,
+            marker.EndTime,
+            EarType.Right);
 
         if (addToLeft)
-        {
-            overlappingWords.AddRange(_wordSeriesService.AddWordToSeries(LeftSeries,
-                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Left)));
-        }
+            overlaps.AddRange(_wordSeriesService.GetOverlaps(LeftSeries, leftWord));
 
         if (addToRight)
-        {
-            overlappingWords.AddRange(_wordSeriesService.AddWordToSeries(RightSeries,
-                new WordTimestamp(marker.Word, marker.StartTime, marker.EndTime, EarType.Right)));
-        }
+            overlaps.AddRange(_wordSeriesService.GetOverlaps(RightSeries, rightWord));
+
+        if (overlaps.Count > 0)
+            return overlaps;
+
+        if (addToLeft)
+            _wordSeriesService.AddWordToSeries(LeftSeries, leftWord);
+
+        if (addToRight)
+            _wordSeriesService.AddWordToSeries(RightSeries, rightWord);
 
         UpdateRecognitionPresentationMode();
 
-        return overlappingWords
-            .Distinct()
-            .ToList();
+        return overlaps;
     }
 
     /// <summary>

@@ -13,7 +13,8 @@ public interface IWordSeriesService
         ObservableCollection<Series> targetSeries,
         List<Series> newSeriesData);
 
-    List<WordTimestamp> AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word);
+    void AddWordToSeries(ObservableCollection<Series> series, WordTimestamp word);
+    List<WordTimestamp> GetOverlaps(ObservableCollection<Series> series, WordTimestamp word);
     void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word);
     string? GetOverlapWarning(ObservableCollection<Series> series);
     void RebuildSeriesCollection(ObservableCollection<Series> series);
