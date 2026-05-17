@@ -228,7 +228,8 @@ public class SpeechRecognitionService: ISpeechRecognitionService
     /// <summary>
     /// Извлекает слова из JSON результата распознавания
     /// </summary>
-    /// <param name="json"></param>
+    /// <param name="json">Разметка</param>
+    /// <param name="channel">Канал</param>
     /// <returns></returns>
     private List<WordTimestamp> ExtractWords(string json, EarType channel)
     {
@@ -238,22 +239,32 @@ public class SpeechRecognitionService: ISpeechRecognitionService
             return result;
 
         var jObj = JsonNode.Parse(json);
-        var words = jObj["result"];
+        var words = jObj?["result"]?.AsArray();
 
         if (words == null)
             return result;
 
-        foreach (var word in words.AsArray())
+        for (int i = 0; i < words.Count; i++)
         {
+            var word = words[i];
             double start = (double)word["start"];
             double end = (double)word["end"];
+            double extendedEnd = end + 0.1;
+            if (i < words.Count - 1)
+            {
+                var nextWord = words[i + 1];
+                double nextStart = (double)nextWord["start"];
+                if (extendedEnd > nextStart)
+                {
+                    extendedEnd = nextStart;
+                }
+            }
 
-            end += 0.1;
             result.Add(new WordTimestamp
             (
                 word["word"]?.ToString(),
                 start,
-                end,
+                extendedEnd,
                 channel
             ));
         }

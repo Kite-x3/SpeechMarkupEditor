@@ -3,6 +3,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using SpeechMarkupEditor.Assets;
 
 namespace SpeechMarkupEditor.Models;
@@ -18,7 +19,9 @@ public class WordTimestamp : IComparable<WordTimestamp>, INotifyPropertyChanged
     private bool _isPlaying;
     private EarType _channel;
 
+    [JsonIgnore]
     public bool RangeWasAutoCorrected { get; private set; }
+    [JsonIgnore]
     public string? LastRangeCorrectionMessage { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -54,6 +57,7 @@ public class WordTimestamp : IComparable<WordTimestamp>, INotifyPropertyChanged
         }
     }
 
+    [JsonIgnore]
     public bool IsPlaying
     {
         get => _isPlaying;

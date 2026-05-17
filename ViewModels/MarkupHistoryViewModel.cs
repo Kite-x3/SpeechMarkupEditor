@@ -31,12 +31,6 @@ public partial class MarkupHistoryViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task Refresh()
-    {
-        await ReloadAsync();
-    }
-
-    [RelayCommand]
     private async Task DeleteSelected()
     {
         if (SelectedEntry == null)

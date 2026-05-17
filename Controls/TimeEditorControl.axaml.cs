@@ -13,7 +13,8 @@ namespace SpeechMarkupEditor.Controls;
 
 public partial class TimeEditorControl : UserControl
 {
-    private const double MINIMUM_RANGE_GAP_SECONDS = 0.001;
+    private const double MINIMUM_RANGE_GAP_SECONDS = 0.01;
+    private const double INCREMENT_DECREMENT_VALUE = 0.01;
 
     public static readonly StyledProperty<double> TimeValueProperty =
         AvaloniaProperty.Register<TimeEditorControl, double>(
@@ -54,13 +55,13 @@ public partial class TimeEditorControl : UserControl
 
     private void OnIncrement(object? sender, RoutedEventArgs e)
     {
-        SetTimeValue(ClampToWordBounds(TimeValue + 0.001));
+        SetTimeValue(ClampToWordBounds(TimeValue + INCREMENT_DECREMENT_VALUE));
         ApplyTimeToFields(TimeValue);
     }
 
     private void OnDecrement(object? sender, RoutedEventArgs e)
     {
-        SetTimeValue(ClampToWordBounds(TimeValue - 0.001));
+        SetTimeValue(ClampToWordBounds(TimeValue - INCREMENT_DECREMENT_VALUE));
         ApplyTimeToFields(TimeValue);
     }
 

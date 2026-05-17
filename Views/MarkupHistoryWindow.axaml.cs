@@ -21,11 +21,6 @@ public partial class MarkupHistoryWindow : Window
         OpenSelectedEntry();
     }
 
-    private void CloseButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        Close(null);
-    }
-
     private void HistoryListBox_OnDoubleTapped(object? sender, TappedEventArgs e)
     {
         OpenSelectedEntry();

@@ -7,7 +7,7 @@ public static class AppDatabasePaths
 {
     public static string GetDatabasePath()
     {
-        var appDataDirectory = Path.Combine(
+        string appDataDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "SpeechMarkupEditor");
 

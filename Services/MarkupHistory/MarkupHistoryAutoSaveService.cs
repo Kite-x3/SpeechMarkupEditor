@@ -8,7 +8,7 @@ namespace SpeechMarkupEditor.Services.MarkupHistory;
 
 public sealed class MarkupHistoryAutoSaveService : IMarkupHistoryAutoSaveService, IDisposable
 {
-    private static readonly TimeSpan DebounceDelay = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan DEBOUNCE_DELAY = TimeSpan.FromSeconds(3);
 
     private readonly IMarkupHistoryService _markupHistoryService;
     private readonly object _sync = new();
@@ -84,7 +84,7 @@ public sealed class MarkupHistoryAutoSaveService : IMarkupHistoryAutoSaveService
     {
         try
         {
-            await Task.Delay(DebounceDelay, cancellationToken);
+            await Task.Delay(DEBOUNCE_DELAY, cancellationToken);
             await FlushPendingSaveAsync(cancellationToken);
         }
         catch (OperationCanceledException)
