@@ -6,6 +6,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using Microsoft.Extensions.Options;
 using SpeechMarkupEditor.Assets;
 using SpeechMarkupEditor.Infrastructure.Comparers;
@@ -131,15 +134,29 @@ public class WordSeriesService : IWordSeriesService
         }
     }
 
-    public void RebuildSeriesCollection(ObservableCollection<Series> series)
+    public async Task RebuildSeriesCollection(ObservableCollection<Series> series, CancellationToken ct = default)
     {
+        if (series.Count == 0)
+            return;
+
         var words = series
             .SelectMany(item => item.Words)
             .OrderBy(word => word.StartTime)
             .ThenBy(word => word.Word, StringComparer.Ordinal)
             .ToList();
 
-        RebuildSeries(series, words);
+        var rebuiltSeries = await Task.Run(() =>
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var grouped = GroupWordsIntoSeries(words);
+            return ConvertToSeriesList(grouped);
+        }, ct);
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            SynchronizeSeriesCollection(series, rebuiltSeries);
+        }, DispatcherPriority.Background, ct);
     }
 
     public string? GetOverlapWarning(ObservableCollection<Series> series)

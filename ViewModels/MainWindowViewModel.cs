@@ -260,7 +260,7 @@ public partial class MainWindowViewModel : ViewModelBase
         catch (Exception ex)
         {
             await _dialogService.ShowErrorAsync(Resources.FileChoosingError);
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine($"Error: {ex.Message}");
             return;
         }
@@ -584,8 +584,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 Resources.Cancel);
         }
 
-        _wordSeriesService.RebuildSeriesCollection(LeftSeries);
-        _wordSeriesService.RebuildSeriesCollection(RightSeries);
+        await _wordSeriesService.RebuildSeriesCollection(LeftSeries);
+        await _wordSeriesService.RebuildSeriesCollection(RightSeries);
         UpdateRecognitionPresentationMode();
         ScheduleHistorySave();
         return true;
@@ -649,8 +649,8 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        _wordSeriesService.RebuildSeriesCollection(LeftSeries);
-        _wordSeriesService.RebuildSeriesCollection(RightSeries);
+        await _wordSeriesService.RebuildSeriesCollection(LeftSeries);
+        await _wordSeriesService.RebuildSeriesCollection(RightSeries);
         UpdateRecognitionPresentationMode();
         await SaveCurrentMarkupToHistoryInternalAsync();
     }
