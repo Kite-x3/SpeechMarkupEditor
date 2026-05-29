@@ -4,7 +4,6 @@ using System;
 using Avalonia.Threading;
 using NAudio.Wave;
 using System.Threading.Tasks;
-using NAudio.Wave.SampleProviders;
 using SpeechMarkupEditor.Infrastructure.Audio;
 using SpeechMarkupEditor.Models;
 
@@ -98,6 +97,10 @@ public class AudioService : IAudioService
         TotalTimeChanged?.Invoke(this, _audioStream.TotalTime.TotalSeconds);
     }
 
+    /// <summary>
+    /// Воспроизвести сегмент слова
+    /// </summary>
+    /// <param name="word">Маркер слова</param>
     public void PlaySegment(WordTimestamp word)
     {
         if (_audioStream == null || _outputDevice == null)

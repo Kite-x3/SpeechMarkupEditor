@@ -22,6 +22,11 @@ public class ImportFromJsonService : IImportService
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    /// Импорт разметки
+    /// </summary>
+    /// <returns>Импортированная разметка</returns>
+    /// <exception cref="InvalidOperationException">Ошибка импорта</exception>
     public async Task<ImportedMarkup?> ImportAsync()
     {
         string? filePath = await _dialogService.ShowOpenFileDialogAsync(Resources.ImportMarkupDialogTitle, Resources.JsonFilesFilter);

@@ -32,6 +32,10 @@ public class RecognitionModelService : IRecognitionModelService
         _models = LoadOrSeedModels(dbContext, modelSettings.Value);
     }
 
+    /// <summary>
+    /// Получение списка моделей
+    /// </summary>
+    /// <returns>Список моделей</returns>
     public IReadOnlyList<RecognitionModelDefinition> GetModels()
     {
         return _models
@@ -40,14 +44,23 @@ public class RecognitionModelService : IRecognitionModelService
             .ToList();
     }
 
+    /// <summary>
+    /// Получение текущей модели
+    /// </summary>
+    /// <returns>Текущая модель</returns>
     public RecognitionModelDefinition? GetCurrentModel()
     {
         return _models.FirstOrDefault(model => model.IsCurrent);
     }
 
+    /// <summary>
+    /// Добавление модели
+    /// </summary>
+    /// <param name="name">Название</param>
+    /// <param name="path">Путь</param>
     public async Task AddModelAsync(string name, string path)
     {
-        var normalizedPath = NormalizePath(path);
+        string normalizedPath = NormalizePath(path);
         var existing = _models.FirstOrDefault(model => PathsEqual(model.Path, normalizedPath));
         if (existing != null)
         {
@@ -75,9 +88,13 @@ public class RecognitionModelService : IRecognitionModelService
         await SaveAsync();
     }
 
+    /// <summary>
+    /// Установка текущей модели
+    /// </summary>
+    /// <param name="path">Путь до модели</param>
     public async Task SetCurrentModelAsync(string path)
     {
-        var normalizedPath = NormalizePath(path);
+        string normalizedPath = NormalizePath(path);
         foreach (var model in _models)
         {
             model.IsCurrent = PathsEqual(model.Path, normalizedPath);
@@ -86,14 +103,18 @@ public class RecognitionModelService : IRecognitionModelService
         await SaveAsync();
     }
 
+    /// <summary>
+    /// Удаление моделей
+    /// </summary>
+    /// <param name="path">Путь до модели</param>
     public async Task DeleteModelAsync(string path)
     {
-        var normalizedPath = NormalizePath(path);
+        string normalizedPath = NormalizePath(path);
         var modelToRemove = _models.FirstOrDefault(model => PathsEqual(model.Path, normalizedPath));
         if (modelToRemove == null || !modelToRemove.IsDeletable)
             return;
 
-        var removedWasCurrent = modelToRemove.IsCurrent;
+        bool removedWasCurrent = modelToRemove.IsCurrent;
         _models.Remove(modelToRemove);
 
         if (removedWasCurrent && _models.Count > 0 && _models.All(model => !model.IsCurrent))

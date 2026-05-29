@@ -27,10 +27,17 @@ public class MarkupHistoryService : IMarkupHistoryService
         _dbContextFactory = dbContextFactory;
     }
 
+    /// <summary>
+    /// Сохранение в историю
+    /// </summary>
+    /// <param name="fileName">Имя файла</param>
+    /// <param name="leftSeries">Серии правого уха</param>
+    /// <param name="rightSeries">Серии левого уха</param>
+    /// <param name="sourcePath">Пусть до файла</param>
     public async Task SaveAsync(string fileName, IReadOnlyList<Series> leftSeries, IReadOnlyList<Series> rightSeries, string? sourcePath = null)
     {
-        var normalizedFileName = string.IsNullOrWhiteSpace(fileName) ? "markup" : fileName;
-        var normalizedSourcePath = NormalizeSourcePath(sourcePath);
+        string normalizedFileName = string.IsNullOrWhiteSpace(fileName) ? "markup" : fileName;
+        string? normalizedSourcePath = NormalizeSourcePath(sourcePath);
         var snapshot = new MarkupSnapshot
         {
             FileName = normalizedFileName,
@@ -67,6 +74,10 @@ public class MarkupHistoryService : IMarkupHistoryService
         await dbContext.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Получение истории
+    /// </summary>
+    /// <returns>Список элементов истории</returns>
     public async Task<IReadOnlyList<MarkupHistoryEntrySummary>> GetHistoryAsync()
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();

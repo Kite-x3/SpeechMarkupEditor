@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using Microsoft.Extensions.Options;
 using SpeechMarkupEditor.Assets;
-using SpeechMarkupEditor.Infrastructure.Comparers;
 using SpeechMarkupEditor.Infrastructure.Configuration;
 using SpeechMarkupEditor.Infrastructure.Converters;
 using SpeechMarkupEditor.Models;
@@ -67,6 +66,11 @@ public class WordSeriesService : IWordSeriesService
         return series;
     }
 
+    /// <summary>
+    /// Приведение списка маркеров к списку серий
+    /// </summary>
+    /// <param name="wordSeries">Список маркеров</param>
+    /// <returns>Список серий</returns>
     public List<Series> ConvertToSeriesList(List<List<WordTimestamp>> wordSeries)
     {
         return wordSeries.Select((seriesWords, index) =>
@@ -109,6 +113,12 @@ public class WordSeriesService : IWordSeriesService
         RebuildSeriesCollection(series);
     }
 
+    /// <summary>
+    /// Поиск пересечений для слова
+    /// </summary>
+    /// <param name="series">Серии слов</param>
+    /// <param name="word">Слово для поиска</param>
+    /// <returns>Список пересекающихся</returns>
     public List<WordTimestamp> GetOverlaps (ObservableCollection<Series> series, WordTimestamp word)
     {
         var tempSeries = new Series();
@@ -117,6 +127,11 @@ public class WordSeriesService : IWordSeriesService
         return FindOverlappingWords(series, tempSeries);
     }
 
+    /// <summary>
+    /// Удаление слова из списка
+    /// </summary>
+    /// <param name="series">Список</param>
+    /// <param name="word">Слово</param>
     public void RemoveWordFromSeries(ObservableCollection<Series> series, WordTimestamp word)
     {
         foreach (var item in series.ToList())
@@ -134,6 +149,11 @@ public class WordSeriesService : IWordSeriesService
         }
     }
 
+    /// <summary>
+    /// Выполнить пересчёт серий
+    /// </summary>
+    /// <param name="series">Список серий</param>
+    /// <param name="ct">Токен отмены</param>
     public async Task RebuildSeriesCollection(ObservableCollection<Series> series, CancellationToken ct = default)
     {
         if (series.Count == 0)
@@ -159,6 +179,11 @@ public class WordSeriesService : IWordSeriesService
         }, DispatcherPriority.Background, ct);
     }
 
+    /// <summary>
+    /// Проверка слов на пересечения
+    /// </summary>
+    /// <param name="series">Проверяемый список</param>
+    /// <returns>Текст с пересекающимися словами</returns>
     public string? GetOverlapWarning(ObservableCollection<Series> series)
     {
         var words = series

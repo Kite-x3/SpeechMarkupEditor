@@ -22,6 +22,14 @@ public class ExportToJsonService : IExportService
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    /// Экспорт разметки в JSON
+    /// </summary>
+    /// <param name="leftSeries">Слова левого уха</param>
+    /// <param name="rightSeries">Слова правого уха</param>
+    /// <param name="fileName">Имя файла</param>
+    /// <param name="audioFilePath">Путь до файла</param>
+    /// <exception cref="ArgumentNullException">Ошибка данных</exception>
     public async Task ExportAsync(
         ObservableCollection<Series> leftSeries,
         ObservableCollection<Series> rightSeries,
